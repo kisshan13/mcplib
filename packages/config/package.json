@@ -1,0 +1,17 @@
+{
+  "name": "@packages/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "tsconfig.base.json",
+    "esbuild.config.mjs"
+  ],
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./esbuild": "./esbuild.config.mjs"
+  },
+  "dependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

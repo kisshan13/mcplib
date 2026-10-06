@@ -1,0 +1,36 @@
+{
+  "name": "@apps/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "build",
+    "package.json"
+  ],
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "node ../../packages/config/esbuild.config.mjs",
+    "openapi:generate": "tsx scripts/generate-openapi.ts",
+    "start": "node build/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^9.1.0",
+    "@packages/prisma": "workspace:*",
+    "better-auth": "^1.4.15",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0",
+    "pino": "^10.2.0",
+    "pino-http": "^11.0.0",
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "@packages/config": "workspace:*",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.2"
+  }
+}

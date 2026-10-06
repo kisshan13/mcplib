@@ -1,0 +1,7 @@
+node_modules/
+build/
+dist/
+logs/
+*.tsbuildinfo
+.env
+openapi.json

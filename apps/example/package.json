@@ -1,0 +1,22 @@
+{
+  "name": "@apps/example",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "build",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "node ../../packages/config/esbuild.config.mjs",
+    "build:standalone": "pnpm --workspace-root run build:standalone",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node build/index.js"
+  },
+  "dependencies": {
+    "@packages/example": "workspace:*"
+  },
+  "devDependencies": {
+    "@packages/config": "workspace:*"
+  }
+}

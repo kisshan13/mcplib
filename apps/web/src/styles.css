@@ -1,0 +1,27 @@
+:root {
+  font-family: Inter, system-ui, sans-serif;
+  color: #172033;
+  background: #f5f7fb;
+}
+
+body {
+  margin: 0;
+}
+
+.app-shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.app-header {
+  margin-bottom: 3rem;
+}
+
+.example-card {
+  margin-top: 2rem;
+  padding: 1rem;
+  border: 1px solid #d9dfeb;
+  border-radius: 0.75rem;
+  background: white;
+}
