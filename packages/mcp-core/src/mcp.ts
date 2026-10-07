@@ -10,13 +10,16 @@ export interface McpToolkitOpts {
     description?: string;
 }
 
+export interface McpToolkitRegister {
+    register: (req: Request, res: Response) => Promise<void>
+}
+
 interface ToolDefinition<
     TInput extends z.ZodTypeAny,
     TOutput extends z.ZodTypeAny,
 > {
     name: string;
     description: string;
-
     inputSchema: TInput;
     outputSchema: TOutput;
 
@@ -24,14 +27,11 @@ interface ToolDefinition<
 }
 
 export class McpToolkit {
-    private readonly server: McpServer;
+    private readonly serverOptions: McpToolkitOpts;
+    private readonly registerToolHandlers: Array<(server: McpServer) => void> = [];
 
     constructor(opts: McpToolkitOpts) {
-        this.server = new McpServer({
-            name: opts.name,
-            version: opts.version,
-            description: opts.description,
-        });
+        this.serverOptions = opts;
     }
 
     registerTool<
@@ -44,6 +44,7 @@ export class McpToolkit {
             const result = await definition.execute(input as z.infer<TInput>);
 
             return {
+                structuredContent: result as Record<string, unknown>,
                 content: [
                     {
                         type: "text" as const,
@@ -53,30 +54,40 @@ export class McpToolkit {
             };
         };
 
-        this.server.registerTool(
-            definition.name,
-            {
-                description: definition.description,
-                inputSchema: definition.inputSchema,
-                outputSchema: definition.outputSchema,
-            },
-            callback as ToolCallback<TInput>,
-        );
+        this.registerToolHandlers.push((server) => {
+            server.registerTool(
+                definition.name,
+                {
+                    description: definition.description,
+                    inputSchema: definition.inputSchema,
+                    outputSchema: definition.outputSchema,
+                },
+                callback as ToolCallback<TInput>,
+            );
+        });
 
         return this;
     }
 
-    async registerMcp(req: Request, res: Response): Promise<void> {
+    registerMcp = async (req: Request, res: Response): Promise<void> => {
+        const server = new McpServer({
+            name: this.serverOptions.name,
+            version: this.serverOptions.version,
+            description: this.serverOptions.description,
+        });
+        this.registerToolHandlers.forEach((registerTool) => registerTool(server));
+
         const transport = new StreamableHTTPServerTransport({
             sessionIdGenerator: undefined,
         });
 
         res.on("close", () => {
             void transport.close();
+            void server.close();
         });
 
-        await this.server.connect(transport);
+        await server.connect(transport);
 
-        await transport.handleRequest(req, res);
-    }
+        await transport.handleRequest(req, res, req.body);
+    };
 }

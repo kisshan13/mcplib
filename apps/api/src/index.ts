@@ -10,6 +10,8 @@ import errorMiddleware from "./middlewares/error.middleware.js";
 import loggerMiddleware from "./middlewares/logger.middleware.js";
 import { exampleRoutes } from "./routes/index.js";
 
+import exampleMcp from "@packages/example-mcp"
+
 const app: Express = express();
 
 app.set("trust proxy", 1);
@@ -29,6 +31,11 @@ app.get("/health", (_req, res) => {
 app.get("/openapi.json", (_req, res) => {
   res.json(createOpenApiDocument());
 });
+
+app.use("/api/v1/example/mcp", async (req, res) => {
+  console.log(req.body)
+  await Promise.resolve(exampleMcp.register(req, res))
+})
 
 app.use("/api/v1/example", exampleRoutes);
 app.use(errorMiddleware);
