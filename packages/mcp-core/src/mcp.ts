@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import { z, type ZodRawShape, type ZodType } from "zod";
+import { z } from "zod";
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer, type ToolCallback } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 
 export interface McpToolkitOpts {
@@ -11,8 +11,8 @@ export interface McpToolkitOpts {
 }
 
 interface ToolDefinition<
-    TInput extends z.AnyZodObject,
-    TOutput extends z.AnyZodObject,
+    TInput extends z.ZodTypeAny,
+    TOutput extends z.ZodTypeAny,
 > {
     name: string;
     description: string;
@@ -34,28 +34,33 @@ export class McpToolkit {
         });
     }
 
-    registerTool<TInput extends z.ZodRawShapeCompat, TOutput extends z.AnyZodObject>(definition: ToolDefinition<TInput, TOutput>): this {
+    registerTool<
+        TInput extends z.ZodTypeAny,
+        TOutput extends z.ZodTypeAny
+    >(
+        definition: ToolDefinition<TInput, TOutput>,
+    ): this {
+        const callback: ToolCallback<z.ZodTypeAny> = async (input: unknown) => {
+            const result = await definition.execute(input as z.infer<TInput>);
+
+            return {
+                content: [
+                    {
+                        type: "text" as const,
+                        text: JSON.stringify(result),
+                    },
+                ],
+            };
+        };
+
         this.server.registerTool(
             definition.name,
             {
                 description: definition.description,
-
                 inputSchema: definition.inputSchema,
-
                 outputSchema: definition.outputSchema,
             },
-            async (input: any) => {
-                const result = await definition.execute(input as z.infer<TInput>);
-
-                return {
-                    content: [
-                        {
-                            type: "text" as const,
-                            text: JSON.stringify(result),
-                        },
-                    ],
-                };
-            },
+            callback as ToolCallback<TInput>,
         );
 
         return this;
