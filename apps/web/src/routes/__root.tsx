@@ -8,7 +8,12 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Web workspace" }
+      { title: "Mcplib — Open-source tooling for the agentic ecosystem" },
+      {
+        name: "description",
+        content:
+          "Discover MCP servers, connect your accounts, and build agentic infrastructure with reusable tooling."
+      }
     ]
   }),
   component: RootComponent
