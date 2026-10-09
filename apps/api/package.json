@@ -11,11 +11,14 @@
     "dev": "tsx watch src/index.ts",
     "build": "node ../../packages/config/esbuild.config.mjs",
     "openapi:generate": "tsx scripts/generate-openapi.ts",
+    "test": "tsx --test src/**/*.test.ts",
     "start": "node build/index.js",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^9.1.0",
+    "@packages/mcp-core": "workspace:*",
+    "@packages/mcplib-core": "workspace:*",
     "@packages/prisma": "workspace:*",
     "better-auth": "^1.4.15",
     "cors": "^2.8.6",

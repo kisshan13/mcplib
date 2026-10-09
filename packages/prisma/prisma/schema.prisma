@@ -7,19 +7,115 @@ datasource db {
   provider = "postgresql"
 }
 
+enum OAuthOwnershipType {
+  PLATFORM
+  ORGANIZATION
+}
+
+enum AuthenticationMethod {
+  OAUTH
+  API_KEY
+  BEARER_TOKEN
+  BASIC_AUTH
+  CUSTOM
+}
+
+enum TokenOwnerType {
+  PLATFORM_USER
+  ORGANIZATION_USER
+  EXTERNAL_IDENTITY
+}
+
+enum TokenStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  INVALID
+}
+
 model User {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   name          String
-  email         String    @unique
+  email         String   @unique
   emailVerified Boolean
   image         String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   sessions Session[]
   accounts Account[]
+  serviceTokens ServiceToken[]
 
   @@map("user")
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  oauthApplications OAuthApplication[]
+  serviceTokens     ServiceToken[]
+
+  @@map("organization")
+}
+
+model OAuthApplication {
+  id                  String             @id @default(cuid())
+  ownershipType       OAuthOwnershipType
+  organizationId      String?
+  integrationId       String
+  serviceProvider     String
+  clientId            String
+  clientSecretEncrypted String?
+  clientSecretReference String?
+  scopes              String[]           @default([])
+  providerConfig      Json?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  serviceTokens ServiceToken[]
+
+  @@unique([ownershipType, organizationId, integrationId, serviceProvider])
+  @@index([organizationId])
+  @@index([integrationId, serviceProvider])
+  @@map("oauth_application")
+}
+
+model ServiceToken {
+  id                    String             @id @default(cuid())
+  secretId              String             @unique @default(cuid())
+  ownershipType         OAuthOwnershipType
+  ownerType             TokenOwnerType
+  organizationId        String?
+  userId                String?
+  externalUserIdentity  String?
+  integrationId         String
+  serviceProvider       String
+  authenticationMethod  AuthenticationMethod
+  oauthApplicationId    String?
+  accessTokenEncrypted  String?
+  refreshTokenEncrypted String?
+  credentialReference   String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  grantedScopes         String[]           @default([])
+  status                TokenStatus        @default(ACTIVE)
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  organization     Organization?     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user            User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  oauthApplication OAuthApplication? @relation(fields: [oauthApplicationId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([integrationId, serviceProvider])
+  @@index([status])
+  @@map("service_token")
 }
 
 model Session {

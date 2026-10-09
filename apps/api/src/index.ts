@@ -8,9 +8,11 @@ import { toNodeHandler } from "better-auth/node";
 import { createOpenApiDocument } from "./openapi/document.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import loggerMiddleware from "./middlewares/logger.middleware.js";
-import { exampleRoutes } from "./routes/index.js";
+import { exampleRoutes, mcpRegistryRoutes } from "./routes/index.js";
+import { databaseSecretProvider } from "./lib/secret-provider.js";
+import authMiddleware from "./middlewares/auth.middleware.js";
 
-import exampleMcp from "@packages/example-mcp"
+import exampleMcp from "@packages/example-mcp";
 
 const app: Express = express();
 
@@ -32,11 +34,14 @@ app.get("/openapi.json", (_req, res) => {
   res.json(createOpenApiDocument());
 });
 
-app.use("/api/v1/example/mcp", async (req, res) => {
-  console.log(req.body)
-  await Promise.resolve(exampleMcp.register(req, res))
-})
+app.use("/api/v1/example/mcp", authMiddleware(), async (req, res) => {
+  await exampleMcp.register(req, res, {
+    secretProvider: databaseSecretProvider,
+    userId: req.user?.id
+  });
+});
 
+app.use("/api/v1/mcps", mcpRegistryRoutes);
 app.use("/api/v1/example", exampleRoutes);
 app.use(errorMiddleware);
 

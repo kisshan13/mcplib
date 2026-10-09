@@ -9,6 +9,7 @@ It wraps the official MCP SDK and provides:
 - type inference from each tool's input schema
 - an Express-compatible Streamable HTTP handler
 - stateless MCP requests with no server-side session storage
+- explicit per-request `SecretProvider` access for MCP tools
 
 The package is currently a private workspace package in this monorepo.
 
@@ -40,7 +41,7 @@ import { z } from "zod";
 const mcp = new McpToolkit({
   name: "example-mcp",
   version: "1.0.0",
-  description: "An example MCP server",
+  description: "An example MCP server"
 });
 
 mcp.registerTool({
@@ -48,19 +49,17 @@ mcp.registerTool({
   description: "Adds two numbers",
   inputSchema: z.object({
     a: z.number().describe("The first number"),
-    b: z.number().describe("The second number"),
+    b: z.number().describe("The second number")
   }),
   outputSchema: z.object({
-    result: z.number().describe("The sum of a and b"),
+    result: z.number().describe("The sum of a and b")
   }),
   async execute(input) {
     return { result: input.a + input.b };
-  },
+  }
 });
 
-const register: McpToolkitRegister = {
-  register: mcp.registerMcp,
-};
+const register: McpToolkitRegister = mcp.asRegister();
 
 export default register;
 ```
@@ -91,17 +90,19 @@ http://localhost:3000/api/v1/example/mcp
 
 `registerMcp` is an Express request handler for MCP Streamable HTTP traffic. Mount it with `app.use` so the transport can handle the MCP methods sent to the endpoint.
 
+`asRegister()` also exposes safe public metadata and tool descriptors for a platform registry. Descriptors include each tool's name, description, input schema, and output schema; they do not include handlers, credentials, or runtime context.
+
 ## Registering tools
 
 `registerTool` accepts a tool definition with four fields:
 
-| Field | Type | Description |
-| --- | --- | --- |
-| `name` | `string` | Name exposed to MCP clients. |
-| `description` | `string` | Human-readable description shown to clients. |
-| `inputSchema` | `z.ZodType` | Zod schema describing and validating the tool input. |
-| `outputSchema` | `z.ZodType` | Zod schema describing the tool result. |
-| `execute` | `(input) => Promise<output>` | Async implementation of the tool. |
+| Field          | Type                         | Description                                          |
+| -------------- | ---------------------------- | ---------------------------------------------------- |
+| `name`         | `string`                     | Name exposed to MCP clients.                         |
+| `description`  | `string`                     | Human-readable description shown to clients.         |
+| `inputSchema`  | `z.ZodType`                  | Zod schema describing and validating the tool input. |
+| `outputSchema` | `z.ZodType`                  | Zod schema describing the tool result.               |
+| `execute`      | `(input) => Promise<output>` | Async implementation of the tool.                    |
 
 The input parameter of `execute` is inferred from `inputSchema`, and the return value is inferred from `outputSchema`:
 
@@ -110,15 +111,15 @@ mcp.registerTool({
   name: "greet",
   description: "Greets a person",
   inputSchema: z.object({
-    name: z.string(),
+    name: z.string()
   }),
   outputSchema: z.object({
-    message: z.string(),
+    message: z.string()
   }),
   async execute(input) {
     // input is inferred as { name: string }.
     return { message: `Hello, ${input.name}!` };
-  },
+  }
 });
 ```
 
@@ -127,9 +128,7 @@ Return an object-shaped result for compatibility with MCP structured content. Th
 Tool registration is chainable, so multiple tools can also be registered inline:
 
 ```ts
-mcp
-  .registerTool(firstTool)
-  .registerTool(secondTool);
+mcp.registerTool(firstTool).registerTool(secondTool);
 ```
 
 Register tools during application setup, before handling requests. The toolkit applies the registered definitions whenever it creates an MCP server for a request.
@@ -142,9 +141,15 @@ Creates a toolkit with the MCP server metadata:
 
 ```ts
 interface McpToolkitOpts {
+  id?: string;
   name: string;
   version: string;
   description?: string;
+  serviceProvider?: string;
+  supportedAuthMethods?: readonly string[];
+  requiredScopes?: readonly string[];
+  capabilities?: readonly string[];
+  configurationRequirements?: readonly string[];
 }
 ```
 
@@ -154,12 +159,16 @@ interface McpToolkitOpts {
 
 Registers a Zod-typed tool and returns the same `McpToolkit` instance. The tool's `execute` function may throw or reject; the MCP SDK then reports the failed request to the client.
 
+### `mcp.getTools()`
+
+Returns public descriptors for registered tools. These descriptors are suitable for a catalog endpoint and contain no executable tool handlers.
+
 ### `mcp.registerMcp(req, res)`
 
 Handles one MCP request using Express's `Request` and `Response` objects:
 
 ```ts
-(req: Request, res: Response) => Promise<void>
+(req: Request, res: Response) => Promise<void>;
 ```
 
 The handler creates a Streamable HTTP transport without a session ID, connects an MCP server, registers the toolkit's tools, and delegates the request to the official MCP transport.
@@ -200,7 +209,7 @@ export function registerSearchTool(mcp: McpToolkit) {
     outputSchema: z.object({ results: z.array(z.string()) }),
     async execute({ query }) {
       return { results: [`Match for: ${query}`] };
-    },
+    }
   });
 }
 ```
