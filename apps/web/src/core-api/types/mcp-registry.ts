@@ -7,10 +7,18 @@ export type McpMetadata = {
   description?: string;
   version?: string;
   serviceProvider?: string;
-  supportedAuthMethods: string[];
-  requiredScopes: string[];
   capabilities: string[];
-  configurationRequirements: string[];
+  secretProviderConfiguration?: {
+    type: "direct" | "configuration";
+    secretId: string;
+    inputSchema: Record<string, unknown>;
+    oauth?: {
+      authorizationUrl?: string;
+      tokenUrl?: string;
+      redirectUri?: string;
+      scopes: string[];
+    };
+  };
   available: boolean;
 };
 

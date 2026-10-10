@@ -10,10 +10,22 @@ export const dtoMcpMetadata = z
     description: z.string().optional(),
     version: z.string().optional(),
     serviceProvider: z.string().optional(),
-    supportedAuthMethods: z.array(z.string()),
-    requiredScopes: z.array(z.string()),
     capabilities: z.array(z.string()),
-    configurationRequirements: z.array(z.string()),
+    secretProviderConfiguration: z
+      .object({
+        type: z.enum(["direct", "configuration"]),
+        secretId: z.string(),
+        inputSchema: z.record(z.string(), z.unknown()),
+        oauth: z
+          .object({
+            authorizationUrl: z.string().optional(),
+            tokenUrl: z.string().optional(),
+            redirectUri: z.string().optional(),
+            scopes: z.array(z.string())
+          })
+          .optional()
+      })
+      .optional(),
     available: z.boolean()
   })
   .meta({ id: "McpMetadata" });

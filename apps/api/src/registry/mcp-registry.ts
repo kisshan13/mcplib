@@ -22,10 +22,10 @@ export type McpRegistryEntry = Pick<McpToolkitRegister, "metadata" | "tools" | "
 function cloneMetadata(metadata: McpMetadata): McpMetadata {
   return {
     ...metadata,
-    supportedAuthMethods: [...metadata.supportedAuthMethods],
-    requiredScopes: [...metadata.requiredScopes],
     capabilities: [...metadata.capabilities],
-    configurationRequirements: [...metadata.configurationRequirements]
+    ...(metadata.secretProviderConfiguration
+      ? { secretProviderConfiguration: metadata.secretProviderConfiguration.clone() }
+      : {})
   };
 }
 

@@ -1,17 +1,19 @@
 import { McpToolkit } from "./mcp.js";
 import type {
-  McpAuthenticationMethod,
   McpMetadata,
   McpRuntimeContext,
+  McpToolDefinition,
   McpToolMetadata,
+  McpToolkitOpts,
   McpToolkitRegister
-} from "./mcp.js";
+} from "./types.js";
 
 export { McpToolkit };
 export type {
-  McpAuthenticationMethod,
   McpMetadata,
   McpRuntimeContext,
+  McpToolDefinition,
   McpToolMetadata,
+  McpToolkitOpts,
   McpToolkitRegister
 };

@@ -5,7 +5,7 @@ import { McpImage } from "./mcp-image";
 export function McpCard({ mcp }: { mcp: McpMetadata }) {
   const title = mcp.displayName || mcp.name;
   const description = mcp.description?.trim() || "No description is available for this MCP.";
-  const authMethods = mcp.supportedAuthMethods.slice(0, 2).join(" / ");
+  const authType = mcp.secretProviderConfiguration?.type;
 
   return (
     <Surface as="article" padding="compact" tone="muted" className="flex flex-col gap-3">
@@ -34,7 +34,7 @@ export function McpCard({ mcp }: { mcp: McpMetadata }) {
 
       <footer className="mt-auto flex flex-wrap gap-x-3 gap-y-1 font-mono text-[0.6rem] text-zinc-500">
         {mcp.version && <span>v{mcp.version}</span>}
-        {authMethods && <span>{authMethods}</span>}
+        {authType && <span>{authType === "configuration" ? "Configured" : "Direct"}</span>}
         {mcp.capabilities.length > 0 && (
           <span>
             {mcp.capabilities.length}{" "}

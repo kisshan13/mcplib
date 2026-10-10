@@ -1,15 +1,19 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { SecretProviderConfiguration } from "@packages/mcplib-core";
+import { z } from "zod";
 import { McpRegistry, McpRegistryError } from "./mcp-registry.js";
 
 const metadata = {
   id: "test-mcp",
   name: "test-mcp",
   displayName: "Test MCP",
-  supportedAuthMethods: ["bearer-token"] as const,
-  requiredScopes: [],
   capabilities: ["tools"],
-  configurationRequirements: [],
+  secretProviderConfiguration: new SecretProviderConfiguration({
+    type: "direct",
+    secretId: "test-api-key",
+    inputSchema: z.object({ apiKey: z.string() })
+  }),
   available: true
 };
 

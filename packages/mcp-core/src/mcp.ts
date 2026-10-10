@@ -1,72 +1,18 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
 
-import {
-  unavailableSecretProvider,
-  type SecretAccessContext,
-  type SecretProvider
-} from "@packages/mcplib-core";
+import { unavailableSecretProvider } from "@packages/mcplib-core";
 
 import { McpServer, type ToolCallback } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-
-export interface McpToolkitOpts {
-  id?: string;
-  name: string;
-  version: string;
-  description?: string;
-  displayName?: string;
-  serviceProvider?: string;
-  supportedAuthMethods?: readonly McpAuthenticationMethod[];
-  requiredScopes?: readonly string[];
-  capabilities?: readonly string[];
-  configurationRequirements?: readonly string[];
-  available?: boolean;
-  secretProvider?: SecretProvider;
-}
-
-export type McpAuthenticationMethod =
-  "oauth" | "api-key" | "bearer-token" | "basic-auth" | "custom";
-
-export interface McpMetadata {
-  id: string;
-  name: string;
-  displayName: string;
-  description?: string;
-  version?: string;
-  serviceProvider?: string;
-  supportedAuthMethods: readonly McpAuthenticationMethod[];
-  requiredScopes: readonly string[];
-  capabilities: readonly string[];
-  configurationRequirements: readonly string[];
-  available: boolean;
-}
-
-export interface McpRuntimeContext extends SecretAccessContext {
-  secretProvider: SecretProvider;
-}
-
-export interface McpToolMetadata {
-  name: string;
-  description: string;
-  inputSchema: Record<string, unknown>;
-  outputSchema: Record<string, unknown>;
-}
-
-export interface McpToolkitRegister {
-  metadata: McpMetadata;
-  tools: readonly McpToolMetadata[];
-  register: (req: Request, res: Response, context?: McpRuntimeContext) => Promise<void>;
-}
-
-interface ToolDefinition<TInput extends z.ZodTypeAny, TOutput extends z.ZodTypeAny> {
-  name: string;
-  description: string;
-  inputSchema: TInput;
-  outputSchema: TOutput;
-
-  execute(input: z.infer<TInput>, context: McpRuntimeContext): Promise<z.infer<TOutput>>;
-}
+import type {
+  McpMetadata,
+  McpRuntimeContext,
+  McpToolDefinition,
+  McpToolMetadata,
+  McpToolkitOpts,
+  McpToolkitRegister
+} from "./types.js";
 
 export class McpToolkit {
   private readonly serverOptions: McpToolkitOpts;
@@ -85,26 +31,26 @@ export class McpToolkit {
       description: opts.description,
       version: opts.version,
       serviceProvider: opts.serviceProvider,
-      supportedAuthMethods: [...(opts.supportedAuthMethods ?? [])],
-      requiredScopes: [...(opts.requiredScopes ?? [])],
       capabilities: [...(opts.capabilities ?? [])],
-      configurationRequirements: [...(opts.configurationRequirements ?? [])],
-      available: opts.available ?? true
+      available: opts.available ?? true,
+      ...(opts.secretProviderConfiguration
+        ? { secretProviderConfiguration: opts.secretProviderConfiguration.clone() }
+        : {})
     };
   }
 
   getMetadata(): McpMetadata {
     return {
       ...this.metadata,
-      supportedAuthMethods: [...this.metadata.supportedAuthMethods],
-      requiredScopes: [...this.metadata.requiredScopes],
       capabilities: [...this.metadata.capabilities],
-      configurationRequirements: [...this.metadata.configurationRequirements]
+      ...(this.metadata.secretProviderConfiguration
+        ? { secretProviderConfiguration: this.metadata.secretProviderConfiguration.clone() }
+        : {})
     };
   }
 
   registerTool<TInput extends z.ZodTypeAny, TOutput extends z.ZodTypeAny>(
-    definition: ToolDefinition<TInput, TOutput>
+    definition: McpToolDefinition<TInput, TOutput>
   ): this {
     this.toolMetadata.push({
       name: definition.name,

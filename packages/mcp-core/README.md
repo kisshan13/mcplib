@@ -146,14 +146,29 @@ interface McpToolkitOpts {
   version: string;
   description?: string;
   serviceProvider?: string;
-  supportedAuthMethods?: readonly string[];
-  requiredScopes?: readonly string[];
   capabilities?: readonly string[];
-  configurationRequirements?: readonly string[];
+  secretProviderConfiguration?: SecretProviderConfiguration;
 }
 ```
 
 `name` and `version` are required. `description` is optional.
+
+`secretProviderConfiguration` describes how the platform should obtain the
+third-party credential required by the MCP. It is public metadata only; it
+does not contain API keys, OAuth tokens, or client secrets. Runtime tools
+request the resulting credential through `SecretProvider`.
+
+Its `inputSchema` is defined with Zod and converted internally to JSON Schema:
+
+```ts
+new SecretProviderConfiguration({
+  type: "direct",
+  secretId: "firecrawl-api-key",
+  inputSchema: z.object({
+    apiKey: z.string().min(1)
+  })
+});
+```
 
 ### `mcp.registerTool(definition)`
 
