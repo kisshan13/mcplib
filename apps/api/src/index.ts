@@ -9,10 +9,8 @@ import { createOpenApiDocument } from "./openapi/document.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import loggerMiddleware from "./middlewares/logger.middleware.js";
 import { exampleRoutes, mcpRegistryRoutes, organizationRoutes } from "./routes/index.js";
-import { databaseSecretProvider } from "./lib/secret-provider.js";
 import authMiddleware from "./middlewares/auth.middleware.js";
-
-import exampleMcp from "@packages/example-mcp";
+import mcpRoutes from "./mcp.js";
 
 const app: Express = express();
 
@@ -34,13 +32,7 @@ app.get("/openapi.json", (_req, res) => {
   res.json(createOpenApiDocument());
 });
 
-app.use("/api/v1/example/mcp", authMiddleware(), async (req, res) => {
-  await exampleMcp.register(req, res, {
-    secretProvider: databaseSecretProvider,
-    userId: req.user?.id
-  });
-});
-
+app.use("/api/v1", mcpRoutes);
 app.use("/api/v1/mcps", mcpRegistryRoutes);
 app.use("/api/v1/organizations", authMiddleware(), organizationRoutes);
 app.use("/api/v1/example", exampleRoutes);

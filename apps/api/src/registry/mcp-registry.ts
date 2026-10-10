@@ -1,5 +1,11 @@
+import type { Request, RequestHandler } from "express";
+import { z } from "zod";
 import type { McpMetadata, McpToolMetadata, McpToolkitRegister } from "@packages/mcp-core";
+import type { McpRuntimeContext } from "@packages/mcp-core";
 import exampleMcp from "@packages/example-mcp";
+import { databaseSecretProvider } from "../lib/secret-provider.js";
+import { ApiError } from "../lib/error.js";
+import { requestHandler } from "../utils/request-handler.js";
 
 export class McpRegistryError extends Error {
   constructor(
@@ -72,3 +78,59 @@ export class McpRegistry {
 
 export const mcpRegistry = new McpRegistry();
 mcpRegistry.register(exampleMcp);
+
+const platformMcpParams = z.object({
+  "mcp-id": z.string().trim().min(1)
+});
+
+const organizationMcpParams = z.object({
+  "organization-id": z.string().trim().min(1),
+  "mcp-id": z.string().trim().min(1)
+});
+
+function getRegisteredMcp(mcpId: string): McpRegistryEntry {
+  try {
+    return mcpRegistry.get(mcpId);
+  } catch (error) {
+    if (error instanceof McpRegistryError && error.code === "UNKNOWN") {
+      throw new ApiError(error.message, 404);
+    }
+
+    throw error;
+  }
+}
+
+function createMcpRequestHandler(
+  getContext: (request: Request) => McpRuntimeContext,
+  getMcpId: (request: Request) => string
+): RequestHandler {
+  return requestHandler(async (request, response) => {
+    const entry = getRegisteredMcp(getMcpId(request));
+    await entry.register(request, response, getContext(request));
+  });
+}
+
+export const platformMcpHandler: RequestHandler = createMcpRequestHandler(
+  (request) => ({
+    secretProvider: databaseSecretProvider,
+    userId: request.user?.id
+  }),
+  (request) => platformMcpParams.parse(request.params)["mcp-id"]
+);
+
+export const organizationMcpHandler: RequestHandler = createMcpRequestHandler(
+  (request) => ({
+    secretProvider: databaseSecretProvider,
+    userId: request.user?.id,
+    organizationId: organizationMcpParams.parse(request.params)["organization-id"]
+  }),
+  (request) => organizationMcpParams.parse(request.params)["mcp-id"]
+);
+
+export const exampleMcpHandler: RequestHandler = createMcpRequestHandler(
+  (request) => ({
+    secretProvider: databaseSecretProvider,
+    userId: request.user?.id
+  }),
+  () => exampleMcp.metadata.id
+);
