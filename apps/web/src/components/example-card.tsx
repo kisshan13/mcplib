@@ -1,4 +1,4 @@
-import type { ExampleResponse } from "@/core-api/types";
+import type { ExampleResponse } from "@/core-api/types/example";
 import { Surface } from "./ui";
 
 export function ExampleCard({ data }: { data: ExampleResponse }) {

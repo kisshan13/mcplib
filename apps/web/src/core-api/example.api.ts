@@ -1,7 +1,7 @@
 import apiClient from "./api";
-import type { ExampleResponse } from "./types";
+import type { ExampleQuery, ExampleResponseEnvelope } from "./types/example";
 
-export async function getExample(): Promise<ExampleResponse> {
-  const response = await apiClient.get<{ data: ExampleResponse }>("/example");
+export async function getExample(params?: ExampleQuery) {
+  const response = await apiClient.get<ExampleResponseEnvelope>("/example", { params });
   return response.data.data;
 }
