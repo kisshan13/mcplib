@@ -1,10 +1,13 @@
 import type { ExampleResponse } from "@/core-api/types";
+import { Surface } from "./ui";
 
 export function ExampleCard({ data }: { data: ExampleResponse }) {
   return (
     <article className="example-card">
-      <p>{data.message}</p>
-      <small>Response for: {data.name}</small>
+      <Surface>
+        <p>{data.message}</p>
+        <small>Response for: {data.name}</small>
+      </Surface>
     </article>
   );
 }

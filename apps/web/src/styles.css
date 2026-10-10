@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap");
+@import "tailwindcss";
 
 :root {
   color-scheme: dark;
@@ -85,7 +86,6 @@ a:focus-visible {
 }
 
 .site-nav a,
-.header-action,
 .site-footer a {
   color: var(--muted);
   font-family: var(--mono);
@@ -100,22 +100,6 @@ a:focus-visible {
 .site-footer a:hover,
 .site-footer a:focus-visible {
   color: var(--white);
-}
-
-.header-action {
-  flex: 0 0 auto;
-  padding: 0.5rem 0.72rem;
-  background: var(--white);
-  color: #0b0b0b;
-  transition:
-    background 140ms ease,
-    color 140ms ease;
-}
-
-.header-action:hover,
-.header-action:focus-visible {
-  background: #d8d8d4;
-  color: #0b0b0b;
 }
 
 .hero-section {
@@ -208,40 +192,6 @@ a:focus-visible {
   justify-content: center;
   gap: 1.3rem;
   margin-top: 2rem;
-}
-
-.action-link,
-.text-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  color: var(--white);
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  font-weight: 500;
-  text-decoration: none;
-  transition:
-    color 140ms ease,
-    background 140ms ease;
-}
-
-.action-link:hover,
-.action-link:focus-visible,
-.text-link:hover,
-.text-link:focus-visible {
-  color: #cfcfcb;
-}
-
-.action-link-primary {
-  padding: 0.82rem 1rem;
-  background: var(--white);
-  color: #0a0a0a;
-}
-
-.action-link-primary:hover,
-.action-link-primary:focus-visible {
-  background: #d8d8d4;
-  color: #0a0a0a;
 }
 
 .hero-note {
@@ -436,17 +386,6 @@ a:focus-visible {
 
 .feature-card {
   min-height: 178px;
-  padding: 1.4rem 1.35rem 1.5rem;
-  background: var(--surface);
-  border-radius: 14px;
-}
-
-.feature-card:nth-child(2) {
-  background: var(--surface-raised);
-}
-
-.feature-card:nth-child(3) {
-  background: #151515;
 }
 
 .feature-index {
@@ -491,9 +430,6 @@ a:focus-visible {
   display: grid;
   grid-template-columns: 2.5rem minmax(0, 1fr);
   gap: 0.8rem;
-  padding: 1.2rem 1.15rem 1.3rem;
-  background: var(--surface);
-  border-radius: 12px;
 }
 
 .capability-index {
@@ -541,10 +477,6 @@ a:focus-visible {
   margin-top: 1.8rem;
 }
 
-.text-link {
-  color: var(--muted);
-}
-
 .auth-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(230px, 0.72fr);
@@ -561,9 +493,6 @@ a:focus-visible {
   display: grid;
   grid-template-columns: 0.5rem minmax(0, 1fr);
   gap: 0.9rem;
-  padding: 1.2rem 1.15rem 1.3rem;
-  background: var(--surface);
-  border-radius: 12px;
 }
 
 .auth-marker {
@@ -576,9 +505,6 @@ a:focus-visible {
 
 .boundary-note {
   align-self: start;
-  padding: 1.25rem;
-  background: var(--white);
-  border-radius: 14px;
 }
 
 .boundary-note .technical-label,
@@ -668,17 +594,8 @@ a:focus-visible {
   list-style: none;
 }
 
-.app-shell {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
 .example-card {
   margin-top: 2rem;
-  padding: 1rem;
-  background: var(--surface);
-  border-radius: 14px;
 }
 
 @media (max-width: 900px) {
@@ -723,10 +640,6 @@ a:focus-visible {
     margin-left: 0;
     padding-bottom: 0.15rem;
     overflow-x: auto;
-  }
-
-  .header-action {
-    margin-left: auto;
   }
 
   .hero-section {

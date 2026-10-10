@@ -1,3 +1,5 @@
+import { Surface } from "../ui";
+
 const authenticationMethods = [
   ["platform OAuth", "Authorize through the platform's configured service integrations."],
   ["organization OAuth", "Use an organization's own OAuth application credentials."],
@@ -20,20 +22,21 @@ export function AuthenticationSection() {
             </p>
             <div className="auth-list">
               {authenticationMethods.map(([label, description]) => (
-                <div className="auth-row" key={label}>
+                <Surface className="auth-row" key={label}>
                   <span className="auth-marker" aria-hidden="true" />
                   <div>
                     <h3>{label}</h3>
                     <p>{description}</p>
                   </div>
-                </div>
+                </Surface>
               ))}
             </div>
           </div>
-          <aside className="boundary-note">
+          <Surface as="aside" className="boundary-note" tone="light">
             <p className="technical-label">credential boundary</p>
             <div
               className="boundary-path"
+              role="img"
               aria-label="Tool to secret provider to authorized credential"
             >
               <span>tool</span>
@@ -46,7 +49,7 @@ export function AuthenticationSection() {
               MCP implementations request access through <span>SecretProvider</span>; they do not
               read platform storage directly.
             </p>
-          </aside>
+          </Surface>
         </div>
       </div>
     </section>

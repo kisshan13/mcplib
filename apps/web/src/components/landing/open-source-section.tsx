@@ -1,4 +1,5 @@
 import { projectLinks } from "./landing-content";
+import { ActionLink } from "../ui";
 
 export function OpenSourceSection() {
   return (
@@ -14,22 +15,17 @@ export function OpenSourceSection() {
             new MCP implementations on top of an open foundation.
           </p>
           <div className="action-row">
-            <a
-              className="action-link action-link-primary"
+            <ActionLink
+              variant="primary"
               href={projectLinks.github}
               target="_blank"
               rel="noreferrer"
             >
               View on GitHub <span aria-hidden="true">-&gt;</span>
-            </a>
-            <a
-              className="action-link"
-              href={projectLinks.documentation}
-              target="_blank"
-              rel="noreferrer"
-            >
+            </ActionLink>
+            <ActionLink href={projectLinks.documentation} target="_blank" rel="noreferrer">
               Start with the docs <span aria-hidden="true">-&gt;</span>
-            </a>
+            </ActionLink>
           </div>
         </div>
       </div>

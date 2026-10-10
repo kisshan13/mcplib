@@ -1,4 +1,5 @@
 import { navigationLinks } from "./landing-content";
+import { ActionLink, TextLink } from "../ui";
 
 function linkTarget(external?: boolean) {
   return external ? { target: "_blank", rel: "noreferrer" } : {};
@@ -15,14 +16,14 @@ export function SiteHeader() {
       </a>
       <nav className="site-nav" aria-label="Primary navigation">
         {navigationLinks.map((link) => (
-          <a key={link.label} href={link.href} {...linkTarget(link.external)}>
+          <TextLink key={link.label} href={link.href} {...linkTarget(link.external)}>
             {link.label}
-          </a>
+          </TextLink>
         ))}
       </nav>
-      <a className="header-action" href="#discover">
+      <ActionLink compact variant="primary" href="#discover">
         Get started
-      </a>
+      </ActionLink>
     </header>
   );
 }

@@ -1,4 +1,5 @@
 import { projectLinks } from "./landing-content";
+import { Surface, TextLink } from "../ui";
 
 const capabilities = [
   ["registry", "Discover registered MCP implementations and their metadata."],
@@ -25,15 +26,15 @@ export function DeveloperSection() {
             secret access, and a runtime boundary for MCP implementations.
           </p>
           <div className="developer-layout">
-            <div className="capability-list" aria-label="MCPLib developer capabilities">
+            <div className="capability-list">
               {capabilities.map(([label, description], index) => (
-                <div className="capability-row" key={label}>
+                <Surface className="capability-row" key={label}>
                   <span className="capability-index">0{index + 1}</span>
                   <div>
                     <h3>{label}</h3>
                     <p>{description}</p>
                   </div>
-                </div>
+                </Surface>
               ))}
             </div>
             <div className="code-sample">
@@ -55,17 +56,12 @@ export function DeveloperSection() {
             </div>
           </div>
           <div className="section-actions">
-            <a
-              className="text-link"
-              href={projectLinks.documentation}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <TextLink href={projectLinks.documentation} target="_blank" rel="noreferrer">
               Read the documentation <span aria-hidden="true">-&gt;</span>
-            </a>
-            <a className="text-link" href={projectLinks.github} target="_blank" rel="noreferrer">
+            </TextLink>
+            <TextLink href={projectLinks.github} target="_blank" rel="noreferrer">
               Explore the repository <span aria-hidden="true">-&gt;</span>
-            </a>
+            </TextLink>
           </div>
         </div>
       </div>

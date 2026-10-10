@@ -1,3 +1,5 @@
+import { Surface } from "../ui";
+
 const features = [
   ["01", "MCP discovery", "Find registered implementations and inspect their public metadata."],
   [
@@ -30,9 +32,14 @@ export function FeatureCards() {
       <div className="feature-grid">
         {features.map(([index, title, description]) => (
           <article className="feature-card" key={title}>
-            <span className="feature-index">{index}</span>
-            <h3>{title}</h3>
-            <p>{description}</p>
+            <Surface
+              className="h-full"
+              tone={index === "01" ? "dark" : index === "02" ? "muted" : "dark"}
+            >
+              <span className="feature-index">{index}</span>
+              <h3>{title}</h3>
+              <p>{description}</p>
+            </Surface>
           </article>
         ))}
       </div>

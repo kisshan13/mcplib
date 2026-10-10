@@ -1,4 +1,5 @@
 import { footerGroups } from "./landing-content";
+import { TextLink } from "../ui";
 
 function linkTarget(external?: boolean) {
   return external ? { target: "_blank", rel: "noreferrer" } : {};
@@ -23,9 +24,9 @@ export function SiteFooter() {
             <ul>
               {group.links.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} {...linkTarget(link.external)}>
+                  <TextLink href={link.href} {...linkTarget(link.external)}>
                     {link.label}
-                  </a>
+                  </TextLink>
                 </li>
               ))}
             </ul>

@@ -1,5 +1,6 @@
 import { Blobatar } from "@blobatar/react";
 import "blobatar/motion.css";
+import { ActionLink } from "../ui";
 
 export function HeroSection() {
   return (
@@ -15,17 +16,12 @@ export function HeroSection() {
           reusable tooling.
         </p>
         <div className="hero-actions">
-          <a className="action-link action-link-primary" href="#discover">
+          <ActionLink variant="primary" href="#discover">
             Explore MCPs <span aria-hidden="true">-&gt;</span>
-          </a>
-          <a
-            className="action-link"
-            href="https://github.com/kisshan13/mcplib"
-            target="_blank"
-            rel="noreferrer"
-          >
+          </ActionLink>
+          <ActionLink href="https://github.com/kisshan13/mcplib" target="_blank" rel="noreferrer">
             View on GitHub <span aria-hidden="true">-&gt;</span>
-          </a>
+          </ActionLink>
         </div>
       </div>
     </section>
