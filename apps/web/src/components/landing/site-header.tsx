@@ -1,5 +1,5 @@
 import { navigationLinks } from "./landing-content";
-import { ActionLink, TextLink } from "../ui";
+import { ActionLink, BrandMark, TextLink } from "../ui";
 
 function linkTarget(external?: boolean) {
   return external ? { target: "_blank", rel: "noreferrer" } : {};
@@ -8,10 +8,13 @@ function linkTarget(external?: boolean) {
 export function SiteHeader() {
   return (
     <header className="site-header">
-      <a className="wordmark" href="#top" aria-label="Mcplib home">
-        mcplib
-        <span className="wordmark-mark" aria-hidden="true">
-          /
+      <a className="wordmark inline-flex items-center gap-2" href="#top" aria-label="Mcplib home">
+        <BrandMark size={30} className="size-9 shrink-0" label="MCPLib brand mark" />
+        <span>
+          mcplib
+          <span className="wordmark-mark" aria-hidden="true">
+            /
+          </span>
         </span>
       </a>
       <nav className="site-nav" aria-label="Primary navigation">
@@ -21,7 +24,7 @@ export function SiteHeader() {
           </TextLink>
         ))}
       </nav>
-      <ActionLink compact variant="primary" href="#discover">
+      <ActionLink compact variant="primary" href="/auth">
         Get started
       </ActionLink>
     </header>

@@ -116,22 +116,6 @@ a:focus-visible {
   max-width: 720px;
 }
 
-.mascot-wrap {
-  display: grid;
-  place-items: center;
-  width: 104px;
-  height: 104px;
-  margin-bottom: 1.35rem;
-  background: var(--white);
-  border-radius: 38% 62% 53% 47% / 48% 44% 56% 52%;
-  filter: grayscale(1) contrast(1.08);
-  transition: transform 180ms ease;
-}
-
-.mascot-wrap:hover {
-  transform: translateY(-3px) rotate(-2deg);
-}
-
 .eyebrow,
 .section-kicker,
 .technical-label,

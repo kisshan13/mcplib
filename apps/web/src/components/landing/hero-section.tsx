@@ -1,14 +1,10 @@
-import { Blobatar } from "@blobatar/react";
-import "blobatar/motion.css";
-import { ActionLink } from "../ui";
+import { ActionLink, BrandMark } from "../ui";
 
 export function HeroSection() {
   return (
     <section className="hero-section" aria-labelledby="hero-title">
       <div className="hero-content">
-        <div className="mascot-wrap" role="img" aria-label="MCPLib mascot">
-          <Blobatar name="mcplib" size={88} animate="hover" />
-        </div>
+        <BrandMark size={104} className="mb-5 size-28 sm:size-32" />
         <p className="eyebrow">Open-source MCP infrastructure</p>
         <h1 id="hero-title">MCPs, ready to connect.</h1>
         <p className="hero-copy">

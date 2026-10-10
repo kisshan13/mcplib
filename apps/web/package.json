@@ -15,9 +15,11 @@
     "@tanstack/react-router": "^1.132.0",
     "@tanstack/react-start": "^1.132.0",
     "axios": "^1.7.9",
+    "better-auth": "^1.7.7",
     "blobatar": "^2.7.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.89.0"
   },
   "devDependencies": {
     "@packages/config": "workspace:*",
