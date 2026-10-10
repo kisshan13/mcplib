@@ -8,7 +8,7 @@ import { toNodeHandler } from "better-auth/node";
 import { createOpenApiDocument } from "./openapi/document.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import loggerMiddleware from "./middlewares/logger.middleware.js";
-import { exampleRoutes, mcpRegistryRoutes } from "./routes/index.js";
+import { exampleRoutes, mcpRegistryRoutes, organizationRoutes } from "./routes/index.js";
 import { databaseSecretProvider } from "./lib/secret-provider.js";
 import authMiddleware from "./middlewares/auth.middleware.js";
 
@@ -42,6 +42,7 @@ app.use("/api/v1/example/mcp", authMiddleware(), async (req, res) => {
 });
 
 app.use("/api/v1/mcps", mcpRegistryRoutes);
+app.use("/api/v1/organizations", authMiddleware(), organizationRoutes);
 app.use("/api/v1/example", exampleRoutes);
 app.use(errorMiddleware);
 
