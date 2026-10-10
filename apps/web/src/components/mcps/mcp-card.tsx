@@ -2,13 +2,33 @@ import type { McpMetadata } from "@/core-api/types/mcp-registry";
 import { Surface } from "@/components/ui";
 import { McpImage } from "./mcp-image";
 
-export function McpCard({ mcp }: { mcp: McpMetadata }) {
+interface McpCardProps {
+  mcp: McpMetadata;
+  onSelect?: (mcp: McpMetadata) => void;
+}
+
+export function McpCard({ mcp, onSelect }: McpCardProps) {
   const title = mcp.displayName || mcp.name;
   const description = mcp.description?.trim() || "No description is available for this MCP.";
   const authType = mcp.secretProviderConfiguration?.type;
 
   return (
-    <Surface as="article" padding="compact" tone="muted" className="flex flex-col gap-3">
+    <Surface
+      as="article"
+      padding="compact"
+      tone="muted"
+      className="flex min-w-0 cursor-pointer flex-col gap-3 text-left transition-colors hover:bg-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+      onClick={() => onSelect?.(mcp)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect?.(mcp);
+        }
+      }}
+      aria-label={`View details for ${title}`}
+      role="button"
+      tabIndex={0}
+    >
       <header className="flex items-start justify-between gap-4">
         <div className="flex min-w-0 items-start gap-3">
           <McpImage mcpId={mcp.id} />

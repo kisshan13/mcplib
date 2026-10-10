@@ -16,7 +16,7 @@ const mcp = new McpToolkit({
     type: "direct",
     secretId: "default",
     inputSchema: z.object({
-      apiKey: z.string().min(1).describe("The example service API key.")
+      apiKey: z.string().min(1).meta({ secret: true }).describe("The example service API key.")
     })
   })
 });

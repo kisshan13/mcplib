@@ -6,11 +6,18 @@ import { McpCardSkeleton } from "./mcp-card-skeleton";
 import { McpEmptyState } from "./mcp-empty-state";
 import { McpGrid } from "./mcp-grid";
 import type { McpAvailabilityFilter } from "./mcp-search";
+import { McpDetailsDialog } from "./mcp-details-dialog";
+import type { McpViewContext } from "./mcp-view-context";
 
-export function McpCatalog() {
+interface McpCatalogProps {
+  viewContext?: McpViewContext;
+}
+
+export function McpCatalog({ viewContext = { type: "platform" } }: McpCatalogProps) {
   const query = useMcpRegistryQuery();
   const [searchQuery, setSearchQuery] = useState("");
   const [availability, setAvailability] = useState<McpAvailabilityFilter>("all");
+  const [selectedMcpId, setSelectedMcpId] = useState<string | null>(null);
 
   const filteredMcps = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -83,10 +90,15 @@ export function McpCatalog() {
         onAvailabilityChange={setAvailability}
       />
       {filteredMcps.length > 0 ? (
-        <McpGrid mcps={filteredMcps} />
+        <McpGrid mcps={filteredMcps} onSelect={(mcp) => setSelectedMcpId(mcp.id)} />
       ) : (
         <McpEmptyState searching={Boolean(searchQuery.trim()) || availability !== "all"} />
       )}
+      <McpDetailsDialog
+        mcpId={selectedMcpId}
+        context={viewContext}
+        onClose={() => setSelectedMcpId(null)}
+      />
     </div>
   );
 }
