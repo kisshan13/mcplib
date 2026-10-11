@@ -39,6 +39,11 @@ enum OrganizationRole {
   MEMBER
 }
 
+enum McpConfigurationScope {
+  PLATFORM
+  ORGANIZATION
+}
+
 model User {
   id            String   @id @default(cuid())
   name          String
@@ -65,9 +70,28 @@ model Organization {
 
   oauthApplications OAuthApplication[]
   serviceTokens     ServiceToken[]
+  mcpConfigurations McpConfiguration[]
   members           OrganizationMember[]
 
   @@map("organization")
+}
+
+model McpConfiguration {
+  id             String                  @id @default(cuid())
+  mcpId          String
+  scope          McpConfigurationScope
+  scopeKey       String
+  organizationId String?
+  values         Json
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([mcpId, scopeKey])
+  @@index([mcpId, scope])
+  @@index([organizationId])
+  @@map("mcp_configuration")
 }
 
 model OrganizationMember {

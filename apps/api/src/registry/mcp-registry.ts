@@ -88,7 +88,7 @@ const organizationMcpParams = z.object({
   "mcp-id": z.string().trim().min(1)
 });
 
-function getRegisteredMcp(mcpId: string): McpRegistryEntry {
+export function getRegisteredMcp(mcpId: string): McpRegistryEntry {
   try {
     return mcpRegistry.get(mcpId);
   } catch (error) {

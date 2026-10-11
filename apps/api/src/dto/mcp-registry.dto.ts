@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { openApiRegistry } from "../openapi/registry.js";
-import { validatorMcpRegistryParams } from "../routes/mcp-registry/validator.js";
+import {
+  validatorMcpConfigurationBody,
+  validatorMcpConfigurationQuery,
+  validatorMcpRegistryParams
+} from "../routes/mcp-registry/validator.js";
 
 export const dtoMcpMetadata = z
   .object({
@@ -43,6 +47,18 @@ export const dtoMcpTool = z
 
 export const dtoMcpToolsList = z.array(dtoMcpTool).meta({ id: "McpToolsList" });
 
+export const dtoMcpConfiguration = z
+  .object({
+    id: z.string(),
+    mcpId: z.string(),
+    scope: z.enum(["platform", "organization"]),
+    organizationId: z.string().nullable(),
+    values: z.record(z.string(), z.unknown()),
+    createdAt: z.string().datetime(),
+    updatedAt: z.string().datetime()
+  })
+  .meta({ id: "McpConfiguration" });
+
 export const dtoMcpMetadataEnvelope = z
   .object({
     data: dtoMcpMetadata,
@@ -67,6 +83,14 @@ export const dtoMcpToolsListEnvelope = z
   })
   .meta({ id: "McpToolsListEnvelope" });
 
+export const dtoMcpConfigurationEnvelope = z
+  .object({
+    data: dtoMcpConfiguration.nullable(),
+    message: z.string(),
+    success: z.boolean()
+  })
+  .meta({ id: "McpConfigurationEnvelope" });
+
 openApiRegistry.registerPath({
   method: "get",
   path: "/api/v1/mcps",
@@ -75,6 +99,44 @@ openApiRegistry.registerPath({
       description: "Available MCP implementations",
       content: {
         "application/json": { schema: dtoMcpMetadataListEnvelope }
+      }
+    }
+  }
+});
+
+openApiRegistry.registerPath({
+  method: "get",
+  path: "/api/v1/mcps/{id}/configuration",
+  request: {
+    params: validatorMcpRegistryParams,
+    query: validatorMcpConfigurationQuery
+  },
+  responses: {
+    200: {
+      description: "MCP configuration for the selected scope",
+      content: {
+        "application/json": { schema: dtoMcpConfigurationEnvelope }
+      }
+    }
+  }
+});
+
+openApiRegistry.registerPath({
+  method: "put",
+  path: "/api/v1/mcps/{id}/configuration",
+  request: {
+    params: validatorMcpRegistryParams,
+    body: {
+      content: {
+        "application/json": { schema: validatorMcpConfigurationBody }
+      }
+    }
+  },
+  responses: {
+    200: {
+      description: "MCP configuration saved",
+      content: {
+        "application/json": { schema: dtoMcpConfigurationEnvelope }
       }
     }
   }

@@ -8,6 +8,8 @@ export type {
   UpdateOrganizationInput
 } from "./organization";
 export type {
+  McpConfiguration,
+  McpConfigurationContext,
   McpMetadata,
   McpMetadataListResponseEnvelope,
   McpMetadataResponseEnvelope,

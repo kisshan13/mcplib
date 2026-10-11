@@ -1,9 +1,3 @@
-export type McpViewContext =
-  | {
-      type: "platform";
-      id?: undefined;
-    }
-  | {
-      type: "organization";
-      id: string;
-    };
+import type { McpConfigurationContext } from "@/core-api/types/mcp-registry";
+
+export type McpViewContext = McpConfigurationContext;

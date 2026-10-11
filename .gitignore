@@ -2,3 +2,4 @@ node_modules/
 build/
 standalone/
 .husky/_/
+.pnpm-store/

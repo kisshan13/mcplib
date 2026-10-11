@@ -1,5 +1,15 @@
 import type { ApiEnvelope } from "./api";
 
+export type McpConfigurationContext =
+  | {
+      type: "platform";
+      id?: undefined;
+    }
+  | {
+      type: "organization";
+      id: string;
+    };
+
 export type McpMetadata = {
   id: string;
   name: string;
@@ -29,6 +39,17 @@ export type McpToolMetadata = {
   outputSchema: Record<string, unknown>;
 };
 
+export type McpConfiguration = {
+  id: string;
+  mcpId: string;
+  scope: "platform" | "organization";
+  organizationId: string | null;
+  values: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type McpMetadataListResponseEnvelope = ApiEnvelope<McpMetadata[]>;
 export type McpMetadataResponseEnvelope = ApiEnvelope<McpMetadata>;
 export type McpToolsListResponseEnvelope = ApiEnvelope<McpToolMetadata[]>;
+export type McpConfigurationResponseEnvelope = ApiEnvelope<McpConfiguration | null>;
