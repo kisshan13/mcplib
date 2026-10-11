@@ -15,6 +15,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ExampleRouteImport } from './routes/example'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppMcpsRouteImport } from './routes/app/mcps'
+import { Route as AppSettingsRouteRouteImport } from './routes/app/settings/route'
+import { Route as AppSettingsIndexRouteImport } from './routes/app/settings/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,14 +48,26 @@ const AppMcpsRoute = AppMcpsRouteImport.update({
   path: '/mcps',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppSettingsRouteRoute = AppSettingsRouteRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/example': typeof ExampleRoute
+  '/app/settings': typeof AppSettingsRouteRouteWithChildren
   '/app/mcps': typeof AppMcpsRoute
   '/app/': typeof AppIndexRoute
+  '/app/settings/': typeof AppSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -61,6 +75,7 @@ export interface FileRoutesByTo {
   '/example': typeof ExampleRoute
   '/app/mcps': typeof AppMcpsRoute
   '/app': typeof AppIndexRoute
+  '/app/settings': typeof AppSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -68,15 +83,34 @@ export interface FileRoutesById {
   '/app': typeof AppRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/example': typeof ExampleRoute
+  '/app/settings': typeof AppSettingsRouteRouteWithChildren
   '/app/mcps': typeof AppMcpsRoute
   '/app/': typeof AppIndexRoute
+  '/app/settings/': typeof AppSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/auth' | '/example' | '/app/mcps' | '/app/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/auth'
+    | '/example'
+    | '/app/settings'
+    | '/app/mcps'
+    | '/app/'
+    | '/app/settings/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/example' | '/app/mcps' | '/app'
-  id: '__root__' | '/' | '/app' | '/auth' | '/example' | '/app/mcps' | '/app/'
+  to: '/' | '/auth' | '/example' | '/app/mcps' | '/app' | '/app/settings'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/auth'
+    | '/example'
+    | '/app/settings'
+    | '/app/mcps'
+    | '/app/'
+    | '/app/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -130,15 +164,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMcpsRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/settings/': {
+      id: '/app/settings/'
+      path: '/'
+      fullPath: '/app/settings/'
+      preLoaderRoute: typeof AppSettingsIndexRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
   }
 }
 
+interface AppSettingsRouteRouteChildren {
+  AppSettingsIndexRoute: typeof AppSettingsIndexRoute
+}
+
+const AppSettingsRouteRouteChildren: AppSettingsRouteRouteChildren = {
+  AppSettingsIndexRoute: AppSettingsIndexRoute,
+}
+
+const AppSettingsRouteRouteWithChildren =
+  AppSettingsRouteRoute._addFileChildren(AppSettingsRouteRouteChildren)
+
 interface AppRouteRouteChildren {
+  AppSettingsRouteRoute: typeof AppSettingsRouteRouteWithChildren
   AppMcpsRoute: typeof AppMcpsRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppSettingsRouteRoute: AppSettingsRouteRouteWithChildren,
   AppMcpsRoute: AppMcpsRoute,
   AppIndexRoute: AppIndexRoute,
 }

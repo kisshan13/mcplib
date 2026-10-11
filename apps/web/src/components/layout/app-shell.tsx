@@ -37,6 +37,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               MCPs
             </Link>
+            <Link
+              to="/app/settings"
+              aria-current={location.pathname.startsWith("/app/settings") ? "page" : undefined}
+              className={`inline-flex items-center gap-2 font-mono text-xs text-zinc-400 no-underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white ${location.pathname.startsWith("/app/settings") ? "text-white" : ""}`}
+            >
+              Settings
+            </Link>
             <TextLink href="https://github.com/kisshan13/mcplib" target="_blank" rel="noreferrer">
               GitHub
             </TextLink>
