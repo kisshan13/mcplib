@@ -3,6 +3,7 @@ import { openApiRegistry } from "../openapi/registry.js";
 import {
   validatorMcpConfigurationBody,
   validatorMcpConfigurationQuery,
+  validatorMcpDirectCredentialBody,
   validatorMcpRegistryParams
 } from "../routes/mcp-registry/validator.js";
 
@@ -92,6 +93,24 @@ export const dtoMcpConfigurationEnvelope = z
   })
   .meta({ id: "McpConfigurationEnvelope" });
 
+export const dtoMcpDirectCredential = z
+  .object({
+    mcpId: z.string(),
+    configured: z.boolean(),
+    scope: z.enum(["platform", "organization"]),
+    organizationId: z.string().nullable(),
+    updatedAt: z.string().datetime()
+  })
+  .meta({ id: "McpDirectCredential" });
+
+export const dtoMcpDirectCredentialEnvelope = z
+  .object({
+    data: dtoMcpDirectCredential,
+    message: z.string(),
+    success: z.boolean()
+  })
+  .meta({ id: "McpDirectCredentialEnvelope" });
+
 export const dtoMcpConfigurationStatus = z
   .object({
     mcpId: z.string(),
@@ -123,6 +142,27 @@ openApiRegistry.registerPath({
       description: "Platform MCP connection statuses for the authenticated user",
       content: {
         "application/json": { schema: dtoMcpConfigurationStatusListEnvelope }
+      }
+    }
+  }
+});
+
+openApiRegistry.registerPath({
+  method: "put",
+  path: "/api/v1/mcps/{id}/credential",
+  request: {
+    params: validatorMcpRegistryParams,
+    body: {
+      content: {
+        "application/json": { schema: validatorMcpDirectCredentialBody }
+      }
+    }
+  },
+  responses: {
+    200: {
+      description: "Direct MCP credential configured",
+      content: {
+        "application/json": { schema: dtoMcpDirectCredentialEnvelope }
       }
     }
   }

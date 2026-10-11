@@ -55,6 +55,16 @@ export type McpMetadataResponseEnvelope = ApiEnvelope<McpMetadata>;
 export type McpToolsListResponseEnvelope = ApiEnvelope<McpToolMetadata[]>;
 export type McpConfigurationResponseEnvelope = ApiEnvelope<McpConfiguration | null>;
 
+export type McpDirectCredential = {
+  mcpId: string;
+  configured: boolean;
+  scope: "platform" | "organization";
+  organizationId: string | null;
+  updatedAt: string;
+};
+
+export type McpDirectCredentialResponseEnvelope = ApiEnvelope<McpDirectCredential>;
+
 export type McpConfigurationStatus = {
   mcpId: string;
   displayName: string;

@@ -121,3 +121,32 @@ export function sanitizeStoredConfigurationValues(
     })
   );
 }
+
+export function validateDirectCredentialValue(
+  configuration: SecretProviderConfiguration,
+  values: Record<string, unknown>
+): string {
+  const schema = getSchema(configuration);
+  const properties = schema.properties ?? {};
+  const secretFields = Object.entries(properties).filter(([, field]) => isSecretField(field));
+
+  if (secretFields.length !== 1) {
+    throw new ApiError("Direct MCP credentials must declare exactly one secret input field.", 422);
+  }
+
+  const [secretId, field] = secretFields[0];
+  const value = values[secretId];
+
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new ApiError(`Credential field '${secretId}' is required.`, 422);
+  }
+
+  for (const id of Object.keys(values)) {
+    if (!properties[id]) {
+      throw new ApiError(`Credential field '${id}' is not supported.`, 422);
+    }
+  }
+
+  assertValidValue(secretId, value, field);
+  return value;
+}

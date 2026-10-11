@@ -1,6 +1,7 @@
 export * from "./use-example-query";
 export * from "./use-mcp-query";
 export * from "./use-mcp-configuration-status-query";
+export * from "./use-mcp-direct-credential-mutation";
 export * from "./use-mcp-registry-query";
 export * from "./use-mcp-tools-query";
 export * from "./use-organization-query";

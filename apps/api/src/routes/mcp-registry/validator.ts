@@ -50,3 +50,10 @@ export const validatorMcpConfigurationBody = z
     values: z.record(z.string(), z.unknown())
   })
   .strict();
+
+export const validatorMcpDirectCredentialBody = z
+  .object({
+    context: validatorMcpConfigurationContext,
+    values: z.record(z.string(), z.unknown())
+  })
+  .strict();

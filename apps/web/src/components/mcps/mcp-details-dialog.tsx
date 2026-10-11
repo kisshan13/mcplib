@@ -111,6 +111,7 @@ export function McpDetailsDialog({ mcpId, context, onClose }: McpDetailsDialogPr
                 context={context}
                 platformOAuthConfigured={configurationStatus?.platformConfigurationReady === true}
                 platformOAuthConnected={configurationStatus?.configured === true}
+                credentialConfigured={configurationStatus?.configured === true}
                 platformOAuthChecking={statusQuery.isPending || statusQuery.isFetching}
               />
               <McpToolsSection mcpId={query.data.id} />

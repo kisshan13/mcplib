@@ -3,6 +3,7 @@ import { OrganizationRole } from "@packages/prisma";
 import {
   dtoMcpConfiguration,
   dtoMcpConfigurationStatusList,
+  dtoMcpDirectCredential,
   dtoMcpMetadata,
   dtoMcpMetadataList,
   dtoMcpToolsList
@@ -15,6 +16,7 @@ import { requestHandler } from "../../utils/request-handler.js";
 import {
   validatorMcpConfigurationBody,
   validatorMcpConfigurationQuery,
+  validatorMcpDirectCredentialBody,
   validatorMcpRegistryParams,
   type McpConfigurationContext
 } from "./validator.js";
@@ -23,11 +25,13 @@ import {
   getMcpConfigurationMetadata,
   listPlatformMcpConfigurationStatuses,
   toMcpConfigurationJson,
+  upsertMcpDirectCredential,
   upsertMcpConfiguration
 } from "./factory.js";
 import {
   sanitizeStoredConfigurationValues,
-  validateAndSanitizeConfigurationValues
+  validateAndSanitizeConfigurationValues,
+  validateDirectCredentialValue
 } from "./configuration-validation.js";
 import { findOrganizationMembership } from "../organizations/factory.js";
 
@@ -195,5 +199,41 @@ export const controllerUpsertMcpConfiguration: RequestHandler = requestHandler(a
   return new ApiResponse(
     dtoMcpConfiguration.parse(toMcpConfigurationResponse(record, configuration)),
     "MCP configuration saved"
+  );
+});
+
+export const controllerUpsertMcpDirectCredential: RequestHandler = requestHandler(async (req) => {
+  const { id } = validatorMcpRegistryParams.parse(req.params);
+  const body = validatorMcpDirectCredentialBody.parse(req.body);
+  const userId = getAuthenticatedUserId(req);
+
+  await assertConfigurationAccess(req, body.context, true);
+
+  const entry = getRegisteredMcp(mcpRegistry, id);
+  const configuration = entry.metadata.secretProviderConfiguration;
+
+  if (!configuration || configuration.type !== "direct") {
+    throw new ApiError("This MCP does not accept direct credentials", 409);
+  }
+
+  const value = validateDirectCredentialValue(configuration, body.values);
+  const record = await upsertMcpDirectCredential({
+    mcpId: id,
+    secretId: configuration.secretId,
+    serviceProvider: entry.metadata.serviceProvider ?? id,
+    userId,
+    context: body.context,
+    value
+  });
+
+  return new ApiResponse(
+    dtoMcpDirectCredential.parse({
+      mcpId: id,
+      configured: true,
+      scope: body.context.type,
+      organizationId: body.context.type === "organization" ? body.context.id : null,
+      updatedAt: record.updatedAt.toISOString()
+    }),
+    "MCP credential configured"
   );
 });

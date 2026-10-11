@@ -5,7 +5,8 @@ import type {
   McpToolsListResponseEnvelope,
   McpConfigurationContext,
   McpConfigurationResponseEnvelope,
-  McpConfigurationStatusListResponseEnvelope
+  McpConfigurationStatusListResponseEnvelope,
+  McpDirectCredentialResponseEnvelope
 } from "./types/mcp-registry";
 
 export async function listMcpRegistry() {
@@ -44,6 +45,19 @@ export async function saveMcpConfiguration(
 ) {
   const response = await apiClient.put<McpConfigurationResponseEnvelope>(
     `/mcps/${id}/configuration`,
+    { context, values }
+  );
+
+  return response.data.data;
+}
+
+export async function saveMcpDirectCredential(
+  id: string,
+  context: McpConfigurationContext,
+  values: Record<string, unknown>
+) {
+  const response = await apiClient.put<McpDirectCredentialResponseEnvelope>(
+    `/mcps/${id}/credential`,
     { context, values }
   );
 

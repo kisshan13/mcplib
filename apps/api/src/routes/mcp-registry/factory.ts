@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { env } from "../../config/env.js";
 import {
+  AuthenticationMethod,
   McpConfigurationScope,
   OAuthOwnershipType,
   Prisma,
@@ -9,13 +10,15 @@ import {
 } from "@packages/prisma";
 import type { McpMetadata } from "@packages/mcp-core";
 import prisma from "../../lib/prisma.js";
+import { encryptCredential } from "../../lib/credential-encryption.js";
 import {
   controllerGetMcpConfiguration,
   controllerGetMcpRegistryEntry,
   controllerListMcpTools,
   controllerListMcpRegistry,
   controllerListMcpConfigurationStatuses,
-  controllerUpsertMcpConfiguration
+  controllerUpsertMcpConfiguration,
+  controllerUpsertMcpDirectCredential
 } from "./controller.js";
 import type { McpConfigurationContext } from "./validator.js";
 import authMiddleware from "../../middlewares/auth.middleware.js";
@@ -84,6 +87,48 @@ export async function listPlatformMcpConfigurationStatuses(userId: string) {
   });
 }
 
+export async function upsertMcpDirectCredential(input: {
+  mcpId: string;
+  secretId: string;
+  serviceProvider: string;
+  userId: string;
+  context: McpConfigurationContext;
+  value: string;
+}) {
+  const isOrganization = input.context.type === "organization";
+  const where: Prisma.ServiceTokenWhereInput = {
+    integrationId: input.mcpId,
+    secretId: input.secretId,
+    ownershipType: isOrganization ? OAuthOwnershipType.ORGANIZATION : OAuthOwnershipType.PLATFORM,
+    ownerType: isOrganization ? TokenOwnerType.ORGANIZATION_USER : TokenOwnerType.PLATFORM_USER,
+    userId: input.userId,
+    organizationId: input.context.type === "organization" ? input.context.id : null
+  };
+  const existing = await prisma.serviceToken.findFirst({ where });
+  const data = {
+    ownershipType: isOrganization ? OAuthOwnershipType.ORGANIZATION : OAuthOwnershipType.PLATFORM,
+    ownerType: isOrganization ? TokenOwnerType.ORGANIZATION_USER : TokenOwnerType.PLATFORM_USER,
+    organizationId: input.context.type === "organization" ? input.context.id : null,
+    userId: input.userId,
+    externalUserIdentity: null,
+    integrationId: input.mcpId,
+    secretId: input.secretId,
+    serviceProvider: input.serviceProvider,
+    authenticationMethod: AuthenticationMethod.API_KEY,
+    oauthApplicationId: null,
+    accessTokenEncrypted: encryptCredential(input.value),
+    refreshTokenEncrypted: null,
+    accessTokenExpiresAt: null,
+    refreshTokenExpiresAt: null,
+    grantedScopes: [] as string[],
+    status: TokenStatus.ACTIVE
+  } as const;
+
+  return existing
+    ? prisma.serviceToken.update({ where: { id: existing.id }, data })
+    : prisma.serviceToken.create({ data });
+}
+
 export function getMcpConfigurationScopeKey(context: McpConfigurationContext): string {
   return context.type === "platform" ? "platform" : `organization:${context.id}`;
 }
@@ -148,6 +193,7 @@ export function factoryMcpRegistryRouter(): Router {
   router.get("/configuration/status", authMiddleware(), controllerListMcpConfigurationStatuses);
   router.get("/:id/configuration", authMiddleware(), controllerGetMcpConfiguration);
   router.put("/:id/configuration", authMiddleware(), controllerUpsertMcpConfiguration);
+  router.put("/:id/credential", authMiddleware(), controllerUpsertMcpDirectCredential);
   router.get("/:id/tools", controllerListMcpTools);
   router.get("/:id", controllerGetMcpRegistryEntry);
 

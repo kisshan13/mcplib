@@ -12,6 +12,8 @@ export type {
   McpConfigurationContext,
   McpConfigurationStatus,
   McpConfigurationStatusListResponseEnvelope,
+  McpDirectCredential,
+  McpDirectCredentialResponseEnvelope,
   McpMetadata,
   McpMetadataListResponseEnvelope,
   McpMetadataResponseEnvelope,

@@ -5,7 +5,8 @@ import { z } from "zod";
 import { ApiError } from "../../lib/error.js";
 import {
   sanitizeStoredConfigurationValues,
-  validateAndSanitizeConfigurationValues
+  validateAndSanitizeConfigurationValues,
+  validateDirectCredentialValue
 } from "./configuration-validation.js";
 import { validatorMcpConfigurationBody, validatorMcpConfigurationQuery } from "./validator.js";
 
@@ -50,6 +51,21 @@ test("does not return secret fields from stored values", () => {
       clientSecret: "should-not-be-returned"
     }),
     { clientId: "client-id" }
+  );
+});
+
+test("validates a direct credential without persisting its secret value", () => {
+  const directConfiguration = new SecretProviderConfiguration({
+    type: "direct",
+    secretId: "firecrawl-api-key",
+    inputSchema: z.object({
+      apiKey: z.string().min(1).meta({ secret: true })
+    })
+  });
+
+  assert.equal(
+    validateDirectCredentialValue(directConfiguration, { apiKey: "firecrawl-secret" }),
+    "firecrawl-secret"
   );
 });
 
