@@ -5,6 +5,7 @@ import {
   type SecretRequest
 } from "@packages/mcplib-core";
 import { Prisma, type ServiceToken } from "@packages/prisma";
+import { decryptCredential } from "./credential-encryption.js";
 
 export type SecretDecryptor = (encryptedValue: string) => Promise<string>;
 
@@ -109,11 +110,15 @@ export function createDatabaseSecretProvider(
  * Placeholder until the platform's approved encryption/KMS implementation is
  * selected. Encrypted database values are never treated as plaintext.
  */
-export async function decryptStoredSecret(_encryptedValue: string): Promise<string> {
-  throw new SecretProviderError(
-    "Secret decryption is not configured for this deployment.",
-    "UNAVAILABLE"
-  );
+export async function decryptStoredSecret(encryptedValue: string): Promise<string> {
+  try {
+    return decryptCredential(encryptedValue);
+  } catch {
+    throw new SecretProviderError(
+      "Secret decryption is not configured for this deployment.",
+      "UNAVAILABLE"
+    );
+  }
 }
 
 export const databaseSecretProvider = createDatabaseSecretProvider({

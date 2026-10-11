@@ -22,6 +22,7 @@ export const dtoMcpMetadata = z
         inputSchema: z.record(z.string(), z.unknown()),
         oauth: z
           .object({
+            issuer: z.string().url().optional(),
             authorizationUrl: z.string().optional(),
             tokenUrl: z.string().optional(),
             redirectUri: z.string().optional(),

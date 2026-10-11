@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { API_URL } from "@/config/constants";
 import type { McpMetadata } from "@/core-api/types/mcp-registry";
 import type { McpViewContext } from "./mcp-view-context";
 
@@ -20,9 +21,11 @@ type JsonSchemaProperty = {
 };
 
 interface McpConfigurationFormProps {
+  mcpId: string;
   configuration: McpMetadata["secretProviderConfiguration"];
   context: McpViewContext;
   platformOAuthConfigured?: boolean;
+  platformOAuthConnected?: boolean;
   platformOAuthChecking?: boolean;
 }
 
@@ -49,9 +52,11 @@ function isEmptyValue(value: string | boolean) {
 }
 
 export function McpConfigurationForm({
+  mcpId,
   configuration,
   context,
   platformOAuthConfigured = false,
+  platformOAuthConnected = false,
   platformOAuthChecking = false
 }: McpConfigurationFormProps) {
   const schema = configuration?.inputSchema as JsonSchema | undefined;
@@ -82,7 +87,9 @@ export function McpConfigurationForm({
   }
 
   if (context.type === "platform" && configuration.oauth) {
-    const oauthUnavailable = !platformOAuthConfigured && !platformOAuthChecking;
+    const oauthReady = platformOAuthConfigured === true;
+    const oauthConnected = platformOAuthConnected === true;
+    const oauthUnavailable = !oauthReady && !platformOAuthChecking;
 
     return (
       <section className="space-y-4" aria-label="MCP configuration">
@@ -103,14 +110,40 @@ export function McpConfigurationForm({
           </p>
         )}
 
-        <button
-          type="button"
-          className="inline-flex items-center justify-center bg-white px-3 py-2 font-mono text-xs font-medium text-zinc-950 transition-colors hover:bg-zinc-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500"
-          disabled={platformOAuthChecking || oauthUnavailable}
-          title={oauthUnavailable ? "Platform OAuth is not configured." : undefined}
-        >
-          Sign in using OAuth
-        </button>
+        {oauthConnected ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="font-mono text-xs text-zinc-300">Connected</span>
+            <button
+              type="button"
+              className="inline-flex items-center justify-center px-3 py-2 font-mono text-xs text-zinc-400 underline decoration-zinc-700 underline-offset-4 transition-colors hover:text-white hover:decoration-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              onClick={() => {
+                if (!oauthReady || platformOAuthChecking) return;
+
+                window.location.assign(
+                  `${API_URL}/api/v1/mcps/${encodeURIComponent(mcpId)}/oauth/authorize`
+                );
+              }}
+            >
+              Reconnect using OAuth
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="inline-flex items-center justify-center bg-white px-3 py-2 font-mono text-xs font-medium text-zinc-950 transition-colors hover:bg-zinc-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500 disabled:opacity-60 disabled:hover:bg-zinc-800"
+            disabled={!oauthReady || platformOAuthChecking}
+            title={oauthUnavailable ? "Platform OAuth is not configured." : undefined}
+            onClick={() => {
+              if (!oauthReady || platformOAuthChecking) return;
+
+              window.location.assign(
+                `${API_URL}/api/v1/mcps/${encodeURIComponent(mcpId)}/oauth/authorize`
+              );
+            }}
+          >
+            {oauthUnavailable ? "OAuth unavailable" : "Sign in using OAuth"}
+          </button>
+        )}
 
         {oauthUnavailable && (
           <p className="text-xs leading-5 text-zinc-600">

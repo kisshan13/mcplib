@@ -7,8 +7,7 @@ export const validatorMcpRegistryParams = z.object({
 export const validatorMcpConfigurationContext = z.discriminatedUnion("type", [
   z
     .object({
-      type: z.literal("platform"),
-      id: z.undefined().optional()
+      type: z.literal("platform")
     })
     .strict(),
   z

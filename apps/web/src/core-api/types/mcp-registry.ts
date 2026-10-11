@@ -23,6 +23,7 @@ export type McpMetadata = {
     secretId: string;
     inputSchema: Record<string, unknown>;
     oauth?: {
+      issuer?: string;
       authorizationUrl?: string;
       tokenUrl?: string;
       redirectUri?: string;

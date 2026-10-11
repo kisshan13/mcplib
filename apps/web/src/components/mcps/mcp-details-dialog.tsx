@@ -106,10 +106,12 @@ export function McpDetailsDialog({ mcpId, context, onClose }: McpDetailsDialogPr
               </div>
 
               <McpConfigurationForm
+                mcpId={query.data.id}
                 configuration={query.data.secretProviderConfiguration}
                 context={context}
-                platformOAuthConfigured={configurationStatus?.platformConfigurationReady}
-                platformOAuthChecking={statusQuery.isPending}
+                platformOAuthConfigured={configurationStatus?.platformConfigurationReady === true}
+                platformOAuthConnected={configurationStatus?.configured === true}
+                platformOAuthChecking={statusQuery.isPending || statusQuery.isFetching}
               />
               <McpToolsSection mcpId={query.data.id} />
             </div>

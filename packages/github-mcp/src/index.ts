@@ -23,6 +23,7 @@ const mcp = new McpToolkit({
         .describe("The GitHub OAuth application client secret.")
     }),
     oauth: {
+      issuer: "https://github.com/login/oauth",
       authorizationUrl: "https://github.com/login/oauth/authorize",
       tokenUrl: "https://github.com/login/oauth/access_token",
       scopes: ["read:user", "user:email"]

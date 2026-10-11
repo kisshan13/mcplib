@@ -6,6 +6,7 @@ export function useMcpConfigurationStatusesQuery(options: { enabled?: boolean } 
   return useQuery({
     queryKey: [...mcpQueryKeys.all, "configuration-status"] as const,
     queryFn: listMcpConfigurationStatuses,
-    enabled: options.enabled ?? true
+    enabled: options.enabled ?? true,
+    refetchOnMount: "always"
   });
 }

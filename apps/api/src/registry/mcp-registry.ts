@@ -23,7 +23,11 @@ mcpRegistry.register(exampleMcp);
 const githubPlatformConfigProvider: McpConfigurationProvider<
   GithubPlatformConfiguration
 > = async () => {
-  if (!env.GITHUB_OAUTH_CLIENT_ID || !env.GITHUB_OAUTH_CLIENT_SECRET) {
+  if (
+    !env.GITHUB_OAUTH_CLIENT_ID ||
+    !env.GITHUB_OAUTH_CLIENT_SECRET ||
+    !env.GITHUB_OAUTH_REDIRECT_URI
+  ) {
     return null;
   }
 

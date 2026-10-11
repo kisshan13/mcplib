@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { env } from "../../config/env.js";
 import {
   McpConfigurationScope,
   OAuthOwnershipType,
@@ -50,22 +51,21 @@ export async function listPlatformMcpConfigurationStatuses(userId: string) {
               OR: [{ accessTokenExpiresAt: null }, { accessTokenExpiresAt: { gt: new Date() } }]
             },
             {
-              OR: configuredMcps.map(({ mcp, configuration }) => ({
-                integrationId: mcp.id,
-                secretId: configuration.secretId
-              }))
+              OR: configuredMcps.map(({ mcp }) => ({ integrationId: mcp.id }))
             }
           ]
         },
-        select: { integrationId: true, secretId: true }
+        select: { integrationId: true }
       })
     : [];
 
-  const tokenKeys = new Set(tokens.map((token) => `${token.integrationId}:${token.secretId}`));
+  const tokenKeys = new Set(tokens.map((token) => token.integrationId));
 
   return resolvedMcps.map(({ mcp, configuration, platformConfiguration }) => {
-    const platformConfigurationReady = configuration?.oauth ? Boolean(platformConfiguration) : true;
-    const configured = configuration ? tokenKeys.has(`${mcp.id}:${configuration.secretId}`) : true;
+    const platformConfigurationReady = configuration?.oauth
+      ? Boolean(platformConfiguration) && Boolean(env.MCPLIB_SECRET_ENCRYPTION_KEY)
+      : true;
+    const configured = configuration ? tokenKeys.has(mcp.id) : true;
 
     return {
       mcpId: mcp.id,
@@ -118,7 +118,7 @@ export function upsertMcpConfiguration(input: {
       mcpId: input.mcpId,
       scope: isOrganization ? McpConfigurationScope.ORGANIZATION : McpConfigurationScope.PLATFORM,
       scopeKey,
-      organizationId: isOrganization ? input.context.id : null,
+      organizationId: input.context.type === "organization" ? input.context.id : null,
       values: input.values
     },
     update: {

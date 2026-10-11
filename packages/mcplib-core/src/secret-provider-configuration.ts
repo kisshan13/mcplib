@@ -5,6 +5,7 @@ export type SecretProviderConfigurationType = "direct" | "configuration";
 export type SecretProviderJsonSchema = Record<string, unknown>;
 
 export interface SecretProviderOAuthConfiguration {
+  issuer?: string;
   authorizationUrl?: string;
   tokenUrl?: string;
   redirectUri?: string;

@@ -135,7 +135,7 @@ model OAuthApplication {
 
 model ServiceToken {
   id                    String             @id @default(cuid())
-  secretId              String             @unique @default(cuid())
+  secretId              String             @default(cuid())
   ownershipType         OAuthOwnershipType
   ownerType             TokenOwnerType
   organizationId        String?
@@ -161,6 +161,7 @@ model ServiceToken {
 
   @@index([organizationId])
   @@index([userId])
+  @@index([integrationId, secretId])
   @@index([integrationId, serviceProvider])
   @@index([status])
   @@map("service_token")
