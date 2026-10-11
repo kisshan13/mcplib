@@ -44,6 +44,9 @@ importers:
       '@packages/example-mcp':
         specifier: workspace:*
         version: link:../../packages/example-mcp
+      '@packages/github-mcp':
+        specifier: workspace:*
+        version: link:../../packages/github-mcp
       '@packages/mcp-core':
         specifier: workspace:*
         version: link:../../packages/mcp-core
@@ -198,6 +201,9 @@ importers:
       '@packages/mcp-core':
         specifier: workspace:*
         version: link:../mcp-core
+      '@packages/mcplib-core':
+        specifier: workspace:*
+        version: link:../mcplib-core
       octokit:
         specifier: ^5.0.5
         version: 5.0.5

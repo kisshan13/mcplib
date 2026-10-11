@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { McpMetadata, McpToolMetadata, McpToolkitRegister } from "@packages/mcp-core";
 import type { McpRuntimeContext } from "@packages/mcp-core";
 import exampleMcp from "@packages/example-mcp";
+import githubMcp from "@packages/github-mcp";
 import { databaseSecretProvider } from "../lib/secret-provider.js";
 import { ApiError } from "../lib/error.js";
 import { requestHandler } from "../utils/request-handler.js";
@@ -78,6 +79,7 @@ export class McpRegistry {
 
 export const mcpRegistry = new McpRegistry();
 mcpRegistry.register(exampleMcp);
+mcpRegistry.register(githubMcp);
 
 const platformMcpParams = z.object({
   "mcp-id": z.string().trim().min(1)

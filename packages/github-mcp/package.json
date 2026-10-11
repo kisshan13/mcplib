@@ -24,6 +24,7 @@
     "@packages/config": "workspace:*"
   },
   "dependencies": {
+    "@packages/mcplib-core": "workspace:*",
     "@packages/mcp-core": "workspace:*",
     "octokit": "^5.0.5",
     "zod": "^4.6.5"
