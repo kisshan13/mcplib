@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { McpMetadata } from "@/core-api/types/mcp-registry";
+import type { McpViewContext } from "./mcp-view-context";
 
 type SecretProviderConfiguration = NonNullable<McpMetadata["secretProviderConfiguration"]>;
 type JsonSchema = SecretProviderConfiguration["inputSchema"] & {
@@ -20,6 +21,9 @@ type JsonSchemaProperty = {
 
 interface McpConfigurationFormProps {
   configuration: McpMetadata["secretProviderConfiguration"];
+  context: McpViewContext;
+  platformOAuthConfigured?: boolean;
+  platformOAuthChecking?: boolean;
 }
 
 function getFieldLabel(id: string, field: JsonSchemaProperty) {
@@ -44,7 +48,12 @@ function isEmptyValue(value: string | boolean) {
   return typeof value === "string" && value.trim().length === 0;
 }
 
-export function McpConfigurationForm({ configuration }: McpConfigurationFormProps) {
+export function McpConfigurationForm({
+  configuration,
+  context,
+  platformOAuthConfigured = false,
+  platformOAuthChecking = false
+}: McpConfigurationFormProps) {
   const schema = configuration?.inputSchema as JsonSchema | undefined;
   const fields = useMemo(() => Object.entries(schema?.properties ?? {}), [schema]);
   const requiredFields = useMemo(() => new Set(schema?.required ?? []), [schema]);
@@ -68,6 +77,46 @@ export function McpConfigurationForm({ configuration }: McpConfigurationFormProp
         <p className="text-sm leading-6 text-zinc-400">
           This MCP does not require additional configuration.
         </p>
+      </section>
+    );
+  }
+
+  if (context.type === "platform" && configuration.oauth) {
+    const oauthUnavailable = !platformOAuthConfigured && !platformOAuthChecking;
+
+    return (
+      <section className="space-y-4" aria-label="MCP configuration">
+        <div className="space-y-1">
+          <h3 className="text-sm font-medium text-white">Configuration</h3>
+          <p className="text-sm leading-6 text-zinc-400">
+            This MCP uses the platform&apos;s OAuth application. You do not need to enter client
+            credentials.
+          </p>
+        </div>
+
+        {configuration.oauth.scopes.length > 0 && (
+          <p className="text-sm text-zinc-300">
+            Scopes:{" "}
+            <span className="font-mono text-xs text-zinc-400">
+              {configuration.oauth.scopes.join(", ")}
+            </span>
+          </p>
+        )}
+
+        <button
+          type="button"
+          className="inline-flex items-center justify-center bg-white px-3 py-2 font-mono text-xs font-medium text-zinc-950 transition-colors hover:bg-zinc-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500"
+          disabled={platformOAuthChecking || oauthUnavailable}
+          title={oauthUnavailable ? "Platform OAuth is not configured." : undefined}
+        >
+          Sign in using OAuth
+        </button>
+
+        {oauthUnavailable && (
+          <p className="text-xs leading-5 text-zinc-600">
+            Platform OAuth is not configured for this MCP yet.
+          </p>
+        )}
       </section>
     );
   }

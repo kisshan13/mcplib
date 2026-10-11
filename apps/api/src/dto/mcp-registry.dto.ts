@@ -91,6 +91,42 @@ export const dtoMcpConfigurationEnvelope = z
   })
   .meta({ id: "McpConfigurationEnvelope" });
 
+export const dtoMcpConfigurationStatus = z
+  .object({
+    mcpId: z.string(),
+    displayName: z.string(),
+    configured: z.boolean(),
+    platformConfigurationReady: z.boolean(),
+    status: z.enum(["connected", "needs_authorization", "not_configured", "not_required"]),
+    authentication: z.enum(["oauth", "direct", "configuration"]).nullable()
+  })
+  .meta({ id: "McpConfigurationStatus" });
+
+export const dtoMcpConfigurationStatusList = z
+  .array(dtoMcpConfigurationStatus)
+  .meta({ id: "McpConfigurationStatusList" });
+
+export const dtoMcpConfigurationStatusListEnvelope = z
+  .object({
+    data: dtoMcpConfigurationStatusList,
+    message: z.string(),
+    success: z.boolean()
+  })
+  .meta({ id: "McpConfigurationStatusListEnvelope" });
+
+openApiRegistry.registerPath({
+  method: "get",
+  path: "/api/v1/mcps/configuration/status",
+  responses: {
+    200: {
+      description: "Platform MCP connection statuses for the authenticated user",
+      content: {
+        "application/json": { schema: dtoMcpConfigurationStatusListEnvelope }
+      }
+    }
+  }
+});
+
 openApiRegistry.registerPath({
   method: "get",
   path: "/api/v1/mcps",

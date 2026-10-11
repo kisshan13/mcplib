@@ -2,13 +2,15 @@ import type { RequestHandler } from "express";
 import { OrganizationRole } from "@packages/prisma";
 import {
   dtoMcpConfiguration,
+  dtoMcpConfigurationStatusList,
   dtoMcpMetadata,
   dtoMcpMetadataList,
   dtoMcpToolsList
 } from "../../dto/mcp-registry.dto.js";
 import { ApiError } from "../../lib/error.js";
 import ApiResponse from "../../lib/response.js";
-import { McpRegistryError, getRegisteredMcp, mcpRegistry } from "../../registry/mcp-registry.js";
+import { McpRegistryError, getRegisteredMcp } from "../../lib/registry.js";
+import { mcpRegistry } from "../../registry/mcp-registry.js";
 import { requestHandler } from "../../utils/request-handler.js";
 import {
   validatorMcpConfigurationBody,
@@ -19,6 +21,7 @@ import {
 import {
   findMcpConfiguration,
   getMcpConfigurationMetadata,
+  listPlatformMcpConfigurationStatuses,
   toMcpConfigurationJson,
   upsertMcpConfiguration
 } from "./factory.js";
@@ -106,6 +109,16 @@ export const controllerListMcpRegistry: RequestHandler = requestHandler(async ()
   return new ApiResponse(data, "MCP implementations retrieved");
 });
 
+export const controllerListMcpConfigurationStatuses: RequestHandler = requestHandler(
+  async (req) => {
+    const userId = getAuthenticatedUserId(req);
+    const data = dtoMcpConfigurationStatusList.parse(
+      await listPlatformMcpConfigurationStatuses(userId)
+    );
+    return new ApiResponse(data, "MCP configuration statuses retrieved");
+  }
+);
+
 export const controllerGetMcpRegistryEntry: RequestHandler = requestHandler(async (req) => {
   const { id } = validatorMcpRegistryParams.parse(req.params);
 
@@ -141,7 +154,7 @@ export const controllerGetMcpConfiguration: RequestHandler = requestHandler(asyn
 
   await assertConfigurationAccess(req, context, false);
 
-  const entry = getRegisteredMcp(id);
+  const entry = getRegisteredMcp(mcpRegistry, id);
   const configuration = getMcpConfigurationMetadata(entry.metadata);
 
   if (!configuration) {
@@ -165,7 +178,7 @@ export const controllerUpsertMcpConfiguration: RequestHandler = requestHandler(a
 
   await assertConfigurationAccess(req, body.context, true);
 
-  const entry = getRegisteredMcp(id);
+  const entry = getRegisteredMcp(mcpRegistry, id);
   const configuration = getMcpConfigurationMetadata(entry.metadata);
 
   if (!configuration) {

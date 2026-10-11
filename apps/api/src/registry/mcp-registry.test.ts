@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { SecretProviderConfiguration } from "@packages/mcplib-core";
 import { z } from "zod";
-import { McpRegistry, McpRegistryError } from "./mcp-registry.js";
+import { McpRegistry, McpRegistryError, resolveMcpConfiguration } from "../lib/registry.js";
 
 const metadata = {
   id: "test-mcp",
@@ -60,4 +60,23 @@ test("MCP registry lists tools without exposing the runtime handler", () => {
 
   assert.deepEqual(registry.listTools("test-mcp"), implementation.tools);
   assert.equal("register" in registry.listTools("test-mcp")[0], false);
+});
+
+test("MCP registry resolves scoped configuration providers without exposing them as metadata", async () => {
+  const registry = new McpRegistry();
+  registry.register(implementation, {
+    platformConfigProvider: () => ({ clientId: "platform-client" }),
+    organizationConfigProvider: (context) =>
+      context.type === "organization" ? { organizationId: context.organizationId } : null
+  });
+
+  const entry = registry.get("test-mcp");
+  assert.deepEqual(await resolveMcpConfiguration(entry, { type: "platform" }), {
+    clientId: "platform-client"
+  });
+  assert.deepEqual(
+    await resolveMcpConfiguration(entry, { type: "organization", organizationId: "org-1" }),
+    { organizationId: "org-1" }
+  );
+  assert.equal("configurationProviders" in registry.list()[0], false);
 });

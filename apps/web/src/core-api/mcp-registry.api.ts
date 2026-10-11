@@ -4,7 +4,8 @@ import type {
   McpMetadataResponseEnvelope,
   McpToolsListResponseEnvelope,
   McpConfigurationContext,
-  McpConfigurationResponseEnvelope
+  McpConfigurationResponseEnvelope,
+  McpConfigurationStatusListResponseEnvelope
 } from "./types/mcp-registry";
 
 export async function listMcpRegistry() {
@@ -46,5 +47,12 @@ export async function saveMcpConfiguration(
     { context, values }
   );
 
+  return response.data.data;
+}
+
+export async function listMcpConfigurationStatuses() {
+  const response = await apiClient.get<McpConfigurationStatusListResponseEnvelope>(
+    "/mcps/configuration/status"
+  );
   return response.data.data;
 }

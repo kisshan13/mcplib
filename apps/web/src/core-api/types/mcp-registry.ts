@@ -53,3 +53,14 @@ export type McpMetadataListResponseEnvelope = ApiEnvelope<McpMetadata[]>;
 export type McpMetadataResponseEnvelope = ApiEnvelope<McpMetadata>;
 export type McpToolsListResponseEnvelope = ApiEnvelope<McpToolMetadata[]>;
 export type McpConfigurationResponseEnvelope = ApiEnvelope<McpConfiguration | null>;
+
+export type McpConfigurationStatus = {
+  mcpId: string;
+  displayName: string;
+  configured: boolean;
+  platformConfigurationReady: boolean;
+  status: "connected" | "needs_authorization" | "not_configured" | "not_required";
+  authentication: "oauth" | "direct" | "configuration" | null;
+};
+
+export type McpConfigurationStatusListResponseEnvelope = ApiEnvelope<McpConfigurationStatus[]>;

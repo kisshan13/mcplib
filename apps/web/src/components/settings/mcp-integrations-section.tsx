@@ -1,15 +1,24 @@
 import { Surface } from "@/components/ui";
+import { useMcpConfigurationStatusesQuery } from "@/hooks/query/use-mcp-configuration-status-query";
 
-const placeholderConnections = [
-  {
-    id: "github-mcp",
-    name: "GitHub",
-    description: "Access GitHub tools through an authorized MCP connection.",
-    status: "Authorized"
+function getStatusLabel(
+  status: "connected" | "needs_authorization" | "not_configured" | "not_required"
+) {
+  switch (status) {
+    case "connected":
+      return "Configured";
+    case "needs_authorization":
+      return "Not configured";
+    case "not_configured":
+      return "Unavailable";
+    case "not_required":
+      return "No credentials required";
   }
-];
+}
 
 export function McpIntegrationsSection() {
+  const query = useMcpConfigurationStatusesQuery();
+
   return (
     <details className="group border-t border-zinc-800 py-5">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left marker:hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white [&::-webkit-details-marker]:hidden">
@@ -28,26 +37,48 @@ export function McpIntegrationsSection() {
       </summary>
 
       <div className="mt-5 space-y-3">
-        {placeholderConnections.map((connection) => (
-          <Surface
-            as="article"
-            padding="compact"
-            tone="muted"
-            className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-            key={connection.id}
-          >
-            <div className="min-w-0">
-              <h3 className="text-sm font-medium text-white">{connection.name}</h3>
-              <p className="mt-1 text-sm leading-5 text-zinc-400">{connection.description}</p>
-            </div>
-            <span className="shrink-0 font-mono text-[0.65rem] uppercase tracking-[0.08em] text-zinc-400">
-              {connection.status}
-            </span>
-          </Surface>
-        ))}
-        <p className="font-mono text-[0.65rem] leading-5 text-zinc-600">
-          Placeholder connections are shown until connection management endpoints are available.
-        </p>
+        {query.isPending && (
+          <p className="text-sm text-zinc-500" role="status">
+            Checking MCP connections...
+          </p>
+        )}
+
+        {query.isError && (
+          <p className="text-sm text-zinc-500" role="alert">
+            Connection status is unavailable right now.
+          </p>
+        )}
+
+        {query.isSuccess && query.data.length === 0 && (
+          <p className="text-sm text-zinc-500">No MCPs are registered yet.</p>
+        )}
+
+        {query.isSuccess &&
+          query.data.map((connection) => (
+            <Surface
+              as="article"
+              padding="compact"
+              tone="muted"
+              className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+              key={connection.mcpId}
+            >
+              <div className="min-w-0">
+                <h3 className="text-sm font-medium text-white">{connection.displayName}</h3>
+                <p className="mt-1 text-sm leading-5 text-zinc-400">
+                  {connection.authentication === "oauth"
+                    ? "Platform OAuth connection"
+                    : connection.authentication === "direct"
+                      ? "Direct service credential"
+                      : "No additional credential required"}
+                </p>
+              </div>
+              <span
+                className={`shrink-0 font-mono text-[0.65rem] uppercase tracking-[0.08em] ${connection.configured ? "text-zinc-200" : "text-zinc-500"}`}
+              >
+                {getStatusLabel(connection.status)}
+              </span>
+            </Surface>
+          ))}
       </div>
     </details>
   );

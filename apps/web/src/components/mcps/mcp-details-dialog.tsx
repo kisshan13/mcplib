@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useMcpQuery } from "@/hooks/query/use-mcp-query";
+import { useMcpConfigurationStatusesQuery } from "@/hooks/query/use-mcp-configuration-status-query";
 import { McpConfigurationForm } from "./mcp-configuration-form";
 import { McpImage } from "./mcp-image";
 import { McpToolsSection } from "./mcp-tools-section";
@@ -15,6 +16,10 @@ export function McpDetailsDialog({ mcpId, context, onClose }: McpDetailsDialogPr
   const dialogRef = useRef<HTMLDialogElement>(null);
   const query = useMcpQuery(mcpId ?? "");
   const isOpen = Boolean(mcpId);
+  const statusQuery = useMcpConfigurationStatusesQuery({
+    enabled: isOpen && context.type === "platform"
+  });
+  const configurationStatus = statusQuery.data?.find((status) => status.mcpId === mcpId);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -100,7 +105,12 @@ export function McpDetailsDialog({ mcpId, context, onClose }: McpDetailsDialogPr
                 <span>{query.data.available ? "Available" : "Unavailable"}</span>
               </div>
 
-              <McpConfigurationForm configuration={query.data.secretProviderConfiguration} />
+              <McpConfigurationForm
+                configuration={query.data.secretProviderConfiguration}
+                context={context}
+                platformOAuthConfigured={configurationStatus?.platformConfigurationReady}
+                platformOAuthChecking={statusQuery.isPending}
+              />
               <McpToolsSection mcpId={query.data.id} />
             </div>
           )}

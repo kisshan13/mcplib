@@ -10,6 +10,8 @@ export type {
 export type {
   McpConfiguration,
   McpConfigurationContext,
+  McpConfigurationStatus,
+  McpConfigurationStatusListResponseEnvelope,
   McpMetadata,
   McpMetadataListResponseEnvelope,
   McpMetadataResponseEnvelope,

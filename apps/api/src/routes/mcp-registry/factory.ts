@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { McpConfigurationScope, Prisma } from "@packages/prisma";
+import {
+  McpConfigurationScope,
+  OAuthOwnershipType,
+  Prisma,
+  TokenOwnerType,
+  TokenStatus
+} from "@packages/prisma";
 import type { McpMetadata } from "@packages/mcp-core";
 import prisma from "../../lib/prisma.js";
 import {
@@ -7,10 +13,76 @@ import {
   controllerGetMcpRegistryEntry,
   controllerListMcpTools,
   controllerListMcpRegistry,
+  controllerListMcpConfigurationStatuses,
   controllerUpsertMcpConfiguration
 } from "./controller.js";
 import type { McpConfigurationContext } from "./validator.js";
 import authMiddleware from "../../middlewares/auth.middleware.js";
+import { resolveMcpConfiguration } from "../../lib/registry.js";
+import { mcpRegistry } from "../../registry/mcp-registry.js";
+
+export async function listPlatformMcpConfigurationStatuses(userId: string) {
+  const metadata = mcpRegistry.list();
+  const resolvedMcps = await Promise.all(
+    metadata.map(async (mcp) => {
+      const configuration = mcp.secretProviderConfiguration;
+      const platformConfiguration = configuration?.oauth
+        ? await resolveMcpConfiguration(mcpRegistry.get(mcp.id), { type: "platform" })
+        : null;
+
+      return { mcp, configuration, platformConfiguration };
+    })
+  );
+  const configuredMcps = resolvedMcps.flatMap(({ mcp, configuration }) => {
+    return configuration ? [{ mcp, configuration }] : [];
+  });
+
+  const tokens = configuredMcps.length
+    ? await prisma.serviceToken.findMany({
+        where: {
+          ownershipType: OAuthOwnershipType.PLATFORM,
+          ownerType: TokenOwnerType.PLATFORM_USER,
+          userId,
+          organizationId: null,
+          status: TokenStatus.ACTIVE,
+          AND: [
+            {
+              OR: [{ accessTokenExpiresAt: null }, { accessTokenExpiresAt: { gt: new Date() } }]
+            },
+            {
+              OR: configuredMcps.map(({ mcp, configuration }) => ({
+                integrationId: mcp.id,
+                secretId: configuration.secretId
+              }))
+            }
+          ]
+        },
+        select: { integrationId: true, secretId: true }
+      })
+    : [];
+
+  const tokenKeys = new Set(tokens.map((token) => `${token.integrationId}:${token.secretId}`));
+
+  return resolvedMcps.map(({ mcp, configuration, platformConfiguration }) => {
+    const platformConfigurationReady = configuration?.oauth ? Boolean(platformConfiguration) : true;
+    const configured = configuration ? tokenKeys.has(`${mcp.id}:${configuration.secretId}`) : true;
+
+    return {
+      mcpId: mcp.id,
+      displayName: mcp.displayName,
+      configured,
+      platformConfigurationReady,
+      status: !configuration
+        ? "not_required"
+        : !platformConfigurationReady
+          ? "not_configured"
+          : configured
+            ? "connected"
+            : "needs_authorization",
+      authentication: configuration?.oauth ? "oauth" : (configuration?.type ?? null)
+    } as const;
+  });
+}
 
 export function getMcpConfigurationScopeKey(context: McpConfigurationContext): string {
   return context.type === "platform" ? "platform" : `organization:${context.id}`;
@@ -73,6 +145,7 @@ export function factoryMcpRegistryRouter(): Router {
   const router = Router();
 
   router.get("/", controllerListMcpRegistry);
+  router.get("/configuration/status", authMiddleware(), controllerListMcpConfigurationStatuses);
   router.get("/:id/configuration", authMiddleware(), controllerGetMcpConfiguration);
   router.put("/:id/configuration", authMiddleware(), controllerUpsertMcpConfiguration);
   router.get("/:id/tools", controllerListMcpTools);
