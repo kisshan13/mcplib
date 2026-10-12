@@ -164,7 +164,16 @@ export async function completePlatformMcpOAuth(input: {
     input.state.codeVerifier,
     { headers: { Accept: "application/json" } }
   );
-  const tokens = await processAuthorizationCodeResponse(authorizationServer, client, tokenResponse);
+  const tokens = await processAuthorizationCodeResponse(
+    authorizationServer,
+    client,
+    tokenResponse,
+    {
+      // Slack's user-token endpoint uses token_type="user" for an access token
+      // that is sent as a bearer token to Slack Web API methods.
+      recognizedTokenTypes: { user: () => undefined }
+    }
+  );
 
   const existingToken = await prisma.serviceToken.findFirst({
     where: {

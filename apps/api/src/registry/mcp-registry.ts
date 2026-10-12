@@ -3,6 +3,7 @@ import { z } from "zod";
 import exampleMcp from "@packages/example-mcp";
 import firecrawlMcp from "@packages/firecrawl-mcp";
 import githubMcp from "@packages/github-mcp";
+import slackMcp from "@packages/slack-mcp";
 import { env } from "../config/env.js";
 import { databaseSecretProvider } from "../lib/secret-provider.js";
 import {
@@ -12,6 +13,14 @@ import {
 } from "../lib/registry.js";
 
 type GithubPlatformConfiguration = {
+  oauth: {
+    clientId: string;
+    clientSecret: string;
+    redirectUri?: string;
+  };
+};
+
+type SlackPlatformConfiguration = {
   oauth: {
     clientId: string;
     clientSecret: string;
@@ -44,6 +53,30 @@ const githubPlatformConfigProvider: McpConfigurationProvider<
 
 mcpRegistry.register(githubMcp, {
   platformConfigProvider: githubPlatformConfigProvider
+});
+
+const slackPlatformConfigProvider: McpConfigurationProvider<
+  SlackPlatformConfiguration
+> = async () => {
+  if (
+    !env.SLACK_OAUTH_CLIENT_ID ||
+    !env.SLACK_OAUTH_CLIENT_SECRET ||
+    !env.SLACK_OAUTH_REDIRECT_URI
+  ) {
+    return null;
+  }
+
+  return {
+    oauth: {
+      clientId: env.SLACK_OAUTH_CLIENT_ID,
+      clientSecret: env.SLACK_OAUTH_CLIENT_SECRET,
+      redirectUri: env.SLACK_OAUTH_REDIRECT_URI
+    }
+  };
+};
+
+mcpRegistry.register(slackMcp, {
+  platformConfigProvider: slackPlatformConfigProvider
 });
 
 const platformMcpParams = z.object({
