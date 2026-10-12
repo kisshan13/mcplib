@@ -73,7 +73,8 @@ export function createDatabaseSecretProvider(
       }
 
       const token = await findToken({
-        secretId: request.secretId,
+        // secretId: request.secretId,
+        userId: request.userId,
         integrationId: request.integrationId,
         ...(request.serviceProvider ? { serviceProvider: request.serviceProvider } : {}),
         status: "ACTIVE",
