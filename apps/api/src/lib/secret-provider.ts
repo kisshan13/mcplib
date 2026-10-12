@@ -56,6 +56,15 @@ export function createDatabaseSecretProvider(
         }
       }
 
+      if (request.organizationId && request.profileId) {
+        accessScopes.push({
+          ownershipType: "ORGANIZATION",
+          ownerType: "ORGANIZATION_PROFILE",
+          organizationId: request.organizationId,
+          profileId: request.profileId
+        });
+      }
+
       if (request.organizationId && request.externalUserIdentity) {
         accessScopes.push({
           ownershipType: "ORGANIZATION",
@@ -67,14 +76,14 @@ export function createDatabaseSecretProvider(
 
       if (accessScopes.length === 0) {
         throw new SecretProviderError(
-          "A user or organization context is required to access a secret.",
+          "A user, profile, or organization context is required to access a secret.",
           "ACCESS_DENIED"
         );
       }
 
       const token = await findToken({
         secretId: request.secretId,
-        userId: request.userId,
+        ...(request.profileId ? { profileId: request.profileId } : { userId: request.userId }),
         integrationId: request.integrationId,
         ...(request.serviceProvider ? { serviceProvider: request.serviceProvider } : {}),
         status: "ACTIVE",

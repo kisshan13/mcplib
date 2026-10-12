@@ -11,6 +11,7 @@ export const validatorCreateApiKeyBody = z
     type: z.enum(["platform", "organization"]),
     description: z.string().trim().max(1000).nullable().optional(),
     organizationId: z.string().trim().min(1).optional(),
+    profileId: z.string().trim().min(1).optional(),
     expiresAt: z.string().datetime({ offset: true }).optional(),
     expirationDays: z.coerce.number().int().min(1).max(3650).optional()
   })
@@ -35,6 +36,20 @@ export const validatorCreateApiKeyBody = z
         code: "custom",
         path: ["organizationId"],
         message: "organizationId is not allowed for platform keys."
+      });
+    }
+    if (body.type === "platform" && body.profileId) {
+      context.addIssue({
+        code: "custom",
+        path: ["profileId"],
+        message: "profileId is only allowed for organization keys."
+      });
+    }
+    if (body.profileId && !body.organizationId) {
+      context.addIssue({
+        code: "custom",
+        path: ["organizationId"],
+        message: "organizationId is required for profile keys."
       });
     }
   });

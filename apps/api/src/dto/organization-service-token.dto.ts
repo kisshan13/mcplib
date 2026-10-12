@@ -5,6 +5,10 @@ import {
   validatorOrganizationServiceTokenParams,
   validatorRegisterServiceTokenBody
 } from "../routes/organization-service-tokens/validator.js";
+import {
+  validatorOrganizationProfileServiceTokenIdParams,
+  validatorOrganizationProfileServiceTokenParams
+} from "../routes/organization-profile-service-tokens/validator.js";
 
 export const dtoServiceToken = z
   .object({
@@ -12,6 +16,7 @@ export const dtoServiceToken = z
     secretId: z.string(),
     organizationId: z.string().nullable(),
     userId: z.string().nullable(),
+    profileId: z.string().nullable(),
     integrationId: z.string(),
     serviceProvider: z.string(),
     authenticationMethod: z.enum(["oauth", "api_key", "bearer_token", "basic_auth", "custom"]),
@@ -44,6 +49,43 @@ openApiRegistry.registerPath({
       content: { "application/json": { schema: dtoServiceTokenListEnvelope } }
     }
   }
+});
+
+const profileServiceTokenPath =
+  "/api/v1/organizations/{organizationId}/profiles/{profileId}/service-tokens";
+
+openApiRegistry.registerPath({
+  method: "get",
+  path: profileServiceTokenPath,
+  request: { params: validatorOrganizationProfileServiceTokenParams },
+  responses: {
+    200: {
+      description: "Organization profile service tokens",
+      content: { "application/json": { schema: dtoServiceTokenListEnvelope } }
+    }
+  }
+});
+
+openApiRegistry.registerPath({
+  method: "post",
+  path: profileServiceTokenPath,
+  request: {
+    params: validatorOrganizationProfileServiceTokenParams,
+    body: { content: { "application/json": { schema: validatorRegisterServiceTokenBody } } }
+  },
+  responses: {
+    201: {
+      description: "Organization profile service token registered",
+      content: { "application/json": { schema: dtoServiceTokenEnvelope } }
+    }
+  }
+});
+
+openApiRegistry.registerPath({
+  method: "delete",
+  path: `${profileServiceTokenPath}/{tokenId}`,
+  request: { params: validatorOrganizationProfileServiceTokenIdParams },
+  responses: { 200: { description: "Organization profile service token revoked" } }
 });
 
 openApiRegistry.registerPath({

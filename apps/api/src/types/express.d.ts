@@ -2,7 +2,8 @@ import type { Session, User } from "@packages/prisma";
 
 export type ApiKeyRequestContext = {
   id: string;
-  userId: string;
+  userId: string | null;
+  profileId: string | null;
   ownershipType: "PLATFORM" | "ORGANIZATION";
   organizationId: string | null;
   prefix: string;

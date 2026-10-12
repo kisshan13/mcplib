@@ -16,6 +16,7 @@ export type ApiKey = {
   description: string | null;
   type: ApiKeyType;
   organization: { id: string; name: string } | null;
+  profile: { id: string; name: string; providerId: string } | null;
   prefix: string;
   createdAt: string;
   expiresAt: string | null;
@@ -38,6 +39,7 @@ export type CreateApiKeyInput = {
   type: ApiKeyType;
   description?: string | null;
   organizationId?: string;
+  profileId?: string;
   expirationDays?: number;
 };
 

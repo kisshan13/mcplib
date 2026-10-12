@@ -92,7 +92,8 @@ export const platformMcpHandler: RequestHandler = createMcpRequestHandler(
   mcpRegistry,
   (request) => ({
     secretProvider: databaseSecretProvider,
-    userId: request.apiKey?.userId ?? request.user?.id
+    userId: request.apiKey?.userId ?? request.user?.id,
+    profileId: request.apiKey?.profileId ?? undefined
   }),
   (request) => platformMcpParams.parse(request.params).mcpId
 );
@@ -102,6 +103,7 @@ export const organizationMcpHandler: RequestHandler = createMcpRequestHandler(
   (request) => ({
     secretProvider: databaseSecretProvider,
     userId: request.apiKey?.userId ?? request.user?.id,
+    profileId: request.apiKey?.profileId ?? undefined,
     organizationId:
       request.apiKey?.organizationId ?? organizationMcpParams.parse(request.params).organizationId
   }),

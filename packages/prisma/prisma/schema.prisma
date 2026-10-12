@@ -23,6 +23,7 @@ enum AuthenticationMethod {
 enum TokenOwnerType {
   PLATFORM_USER
   ORGANIZATION_USER
+  ORGANIZATION_PROFILE
   EXTERNAL_IDENTITY
 }
 
@@ -74,8 +75,29 @@ model Organization {
   mcpConfigurations McpConfiguration[]
   members           OrganizationMember[]
   apiKeys           ApiKey[]
+  profiles          Profile[]
 
   @@map("organization")
+}
+
+model Profile {
+  id             String   @id @default(cuid())
+  organizationId  String
+  name           String
+  profilePicUrl   String?
+  email          String?
+  metadata       Json?
+  providerId     String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  apiKeys       ApiKey[]
+  serviceTokens ServiceToken[]
+
+  @@index([organizationId])
+  @@unique([organizationId, providerId])
+  @@map("profile")
 }
 
 model McpConfiguration {
@@ -142,6 +164,7 @@ model ServiceToken {
   ownerType             TokenOwnerType
   organizationId        String?
   userId                String?
+  profileId             String?
   externalUserIdentity  String?
   integrationId         String
   serviceProvider       String
@@ -159,10 +182,12 @@ model ServiceToken {
 
   organization     Organization?     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   user            User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profile         Profile?          @relation(fields: [profileId], references: [id], onDelete: Cascade)
   oauthApplication OAuthApplication? @relation(fields: [oauthApplicationId], references: [id], onDelete: SetNull)
 
   @@index([organizationId])
   @@index([userId])
+  @@index([profileId])
   @@index([integrationId, secretId])
   @@index([integrationId, serviceProvider])
   @@index([status])
@@ -175,7 +200,8 @@ model ApiKey {
   description    String?
   ownershipType  OAuthOwnershipType
   organizationId String?
-  userId         String
+  userId         String?
+  profileId      String?
   prefix         String             @unique
   verifier       String
   expiresAt      DateTime?
@@ -185,11 +211,13 @@ model ApiKey {
   updatedAt      DateTime           @updatedAt
 
   organization Organization?     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profile      Profile?          @relation(fields: [profileId], references: [id], onDelete: Cascade)
   mcpAccess    ApiKeyMcpAccess[]
 
   @@index([ownershipType, organizationId])
   @@index([userId])
+  @@index([profileId])
   @@index([expiresAt])
   @@index([revokedAt])
   @@map("api_key")

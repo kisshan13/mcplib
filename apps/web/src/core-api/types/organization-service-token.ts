@@ -10,6 +10,7 @@ export type OrganizationServiceToken = {
   secretId: string;
   organizationId: string | null;
   userId: string | null;
+  profileId: string | null;
   integrationId: string;
   serviceProvider: string;
   authenticationMethod: OrganizationServiceTokenAuthenticationMethod;

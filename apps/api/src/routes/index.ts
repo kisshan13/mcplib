@@ -4,4 +4,6 @@ export { default as mcpOAuthRoutes } from "./mcp-oauth/index.js";
 export { default as organizationRoutes } from "./organizations/index.js";
 export { default as organizationMemberRoutes } from "./organization-members/index.js";
 export { default as organizationServiceTokenRoutes } from "./organization-service-tokens/index.js";
+export { default as organizationProfileRoutes } from "./organization-profiles/index.js";
+export { default as organizationProfileServiceTokenRoutes } from "./organization-profile-service-tokens/index.js";
 export { default as apiKeyRoutes } from "./api-keys/index.js";

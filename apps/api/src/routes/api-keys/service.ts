@@ -20,7 +20,11 @@ export const manageableApiKeyWhere = (userId: string): Prisma.ApiKeyWhereInput =
 export function findManageableApiKey(id: string, userId: string) {
   return prisma.apiKey.findFirst({
     where: { id, ...manageableApiKeyWhere(userId) },
-    include: { organization: true, mcpAccess: { orderBy: { createdAt: "asc" } } }
+    include: {
+      organization: true,
+      profile: true,
+      mcpAccess: { orderBy: { createdAt: "asc" } }
+    }
   });
 }
 
@@ -29,7 +33,8 @@ export function createApiKey(input: {
   description: string | null;
   ownershipType: OAuthOwnershipType;
   organizationId: string | null;
-  userId: string;
+  userId: string | null;
+  profileId: string | null;
   expiresAt: Date | null;
 }) {
   const generated = generateApiKey();
@@ -41,11 +46,12 @@ export function createApiKey(input: {
         ownershipType: input.ownershipType,
         organizationId: input.organizationId,
         userId: input.userId,
+        profileId: input.profileId,
         prefix: generated.prefix,
         verifier: generated.verifier,
         expiresAt: input.expiresAt
       },
-      include: { organization: true }
+      include: { organization: true, profile: true }
     })
     .then((record) => ({ record, secret: generated.value }));
 }
@@ -80,7 +86,11 @@ export async function listApiKeys(input: {
   const [items, total] = await prisma.$transaction([
     prisma.apiKey.findMany({
       where,
-      include: { organization: true, _count: { select: { mcpAccess: true } } },
+      include: {
+        organization: true,
+        profile: true,
+        _count: { select: { mcpAccess: true } }
+      },
       orderBy: { createdAt: "desc" },
       skip: (input.page - 1) * input.pageSize,
       take: input.pageSize
@@ -94,7 +104,11 @@ export function revokeApiKey(id: string) {
   return prisma.apiKey.update({
     where: { id },
     data: { revokedAt: new Date() },
-    include: { organization: true, mcpAccess: { orderBy: { createdAt: "asc" } } }
+    include: {
+      organization: true,
+      profile: true,
+      mcpAccess: { orderBy: { createdAt: "asc" } }
+    }
   });
 }
 export function listApiKeyMcpAccess(apiKeyId: string) {

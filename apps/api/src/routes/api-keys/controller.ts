@@ -12,6 +12,7 @@ import ApiResponse from "../../lib/response.js";
 import { requestHandler } from "../../utils/request-handler.js";
 import { mcpRegistry } from "../../registry/mcp-registry.js";
 import { findOrganizationMembership } from "../organizations/service.js";
+import { findOrganizationProfile } from "../organization-profiles/service.js";
 import {
   createApiKey,
   findManageableApiKey,
@@ -46,6 +47,7 @@ function toSafeApiKey(record: {
   lastUsedAt: Date | null;
   createdAt: Date;
   organization?: { id: string; name: string } | null;
+  profile?: { id: string; name: string; providerId: string } | null;
   mcpAccess?: Array<{ mcpId: string; createdAt: Date }>;
   _count?: { mcpAccess: number };
 }) {
@@ -56,6 +58,9 @@ function toSafeApiKey(record: {
     type: record.ownershipType === OAuthOwnershipType.PLATFORM ? "platform" : "organization",
     organization: record.organization
       ? { id: record.organization.id, name: record.organization.name }
+      : null,
+    profile: record.profile
+      ? { id: record.profile.id, name: record.profile.name, providerId: record.profile.providerId }
       : null,
     prefix: record.prefix,
     createdAt: record.createdAt.toISOString(),
@@ -113,6 +118,10 @@ export const controllerCreateApiKey: RequestHandler = requestHandler(async (req)
   const body = validatorCreateApiKeyBody.parse(req.body);
   const organizationId = body.organizationId ?? null;
   if (organizationId) await assertOrganizationManager(organizationId, userId);
+  if (body.profileId) {
+    const profile = await findOrganizationProfile(organizationId!, body.profileId);
+    if (!profile) throw new ApiError("Organization profile not found", 404);
+  }
   const expiresAt = getExpiration(body);
   if (expiresAt && expiresAt.getTime() <= Date.now())
     throw new ApiError("Expiration must be in the future", 400);
@@ -122,7 +131,8 @@ export const controllerCreateApiKey: RequestHandler = requestHandler(async (req)
     ownershipType:
       body.type === "platform" ? OAuthOwnershipType.PLATFORM : OAuthOwnershipType.ORGANIZATION,
     organizationId,
-    userId,
+    userId: body.profileId ? null : userId,
+    profileId: body.profileId ?? null,
     expiresAt
   });
   return new ApiResponse(

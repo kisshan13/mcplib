@@ -12,6 +12,7 @@ export type SecretOperation = "read" | "use";
 
 export interface SecretAccessContext {
   userId?: string;
+  profileId?: string;
   organizationId?: string;
   externalUserIdentity?: string;
 }

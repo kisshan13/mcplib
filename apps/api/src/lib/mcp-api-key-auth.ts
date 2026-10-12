@@ -19,6 +19,7 @@ export async function authenticateMcpApiKey(input: {
     select: {
       id: true,
       userId: true,
+      profileId: true,
       ownershipType: true,
       organizationId: true,
       prefix: true,
@@ -28,6 +29,7 @@ export async function authenticateMcpApiKey(input: {
       organization: {
         select: { members: { select: { userId: true } } }
       },
+      profile: { select: { organizationId: true } },
       mcpAccess: { where: { mcpId: input.mcpId }, select: { id: true } }
     }
   });
@@ -37,7 +39,8 @@ export async function authenticateMcpApiKey(input: {
     (input.ownershipType === OAuthOwnershipType.PLATFORM
       ? key.organizationId === null
       : key.organizationId === input.organizationId &&
-        key.organization?.members.some((member) => member.userId === key.userId)) &&
+        (key.profile?.organizationId === input.organizationId ||
+          key.organization?.members.some((member) => member.userId === key.userId))) &&
     key.revokedAt === null &&
     (!key.expiresAt || key.expiresAt.getTime() > Date.now()) &&
     key.mcpAccess.length > 0 &&
@@ -48,6 +51,7 @@ export async function authenticateMcpApiKey(input: {
   input.request.apiKey = {
     id: key.id,
     userId: key.userId,
+    profileId: key.profileId,
     ownershipType: key.ownershipType,
     organizationId: key.organizationId,
     prefix: key.prefix

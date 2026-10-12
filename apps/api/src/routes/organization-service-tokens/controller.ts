@@ -51,6 +51,7 @@ function toServiceTokenResponse(token: {
   secretId: string;
   organizationId: string | null;
   userId: string | null;
+  profileId: string | null;
   integrationId: string;
   serviceProvider: string;
   authenticationMethod: AuthenticationMethod;

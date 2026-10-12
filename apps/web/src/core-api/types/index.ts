@@ -24,6 +24,13 @@ export type {
   RegisterOrganizationServiceTokenInput
 } from "./organization-service-token";
 export type {
+  CreateOrganizationProfileInput,
+  OrganizationProfile,
+  OrganizationProfileListResponseEnvelope,
+  OrganizationProfileResponseEnvelope,
+  UpdateOrganizationProfileInput
+} from "./organization-profile";
+export type {
   McpConfiguration,
   McpConfigurationContext,
   McpConfigurationStatus,

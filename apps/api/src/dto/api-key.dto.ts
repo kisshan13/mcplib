@@ -9,6 +9,9 @@ import {
 } from "../routes/api-keys/validator.js";
 
 const dtoApiKeyOrganization = z.object({ id: z.string(), name: z.string() }).nullable();
+const dtoApiKeyProfile = z
+  .object({ id: z.string(), name: z.string(), providerId: z.string() })
+  .nullable();
 
 export const dtoApiKeyAccess = z
   .object({
@@ -26,6 +29,7 @@ export const dtoApiKey = z
     description: z.string().nullable(),
     type: z.enum(["platform", "organization"]),
     organization: dtoApiKeyOrganization,
+    profile: dtoApiKeyProfile,
     prefix: z.string(),
     createdAt: z.string().datetime(),
     expiresAt: z.string().datetime().nullable(),
