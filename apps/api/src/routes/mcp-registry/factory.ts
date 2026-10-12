@@ -134,14 +134,26 @@ export function getMcpConfigurationScopeKey(context: McpConfigurationContext): s
 }
 
 export function findMcpConfiguration(mcpId: string, context: McpConfigurationContext) {
-  return prisma.mcpConfiguration.findUnique({
-    where: {
-      mcpId_scopeKey: {
-        mcpId,
-        scopeKey: getMcpConfigurationScopeKey(context)
+  return prisma.mcpConfiguration
+    .findUnique({
+      where: {
+        mcpId_scopeKey: {
+          mcpId,
+          scopeKey: getMcpConfigurationScopeKey(context)
+        }
       }
-    }
-  });
+    })
+    .then((record) => {
+      if (!record) return null;
+
+      const validScope =
+        context.type === "platform"
+          ? record.scope === McpConfigurationScope.PLATFORM && record.organizationId === null
+          : record.scope === McpConfigurationScope.ORGANIZATION &&
+            record.organizationId === context.id;
+
+      return validScope ? record : null;
+    });
 }
 
 export function upsertMcpConfiguration(input: {
@@ -167,6 +179,8 @@ export function upsertMcpConfiguration(input: {
       values: input.values
     },
     update: {
+      scope: isOrganization ? McpConfigurationScope.ORGANIZATION : McpConfigurationScope.PLATFORM,
+      organizationId: input.context.type === "organization" ? input.context.id : null,
       values: input.values
     }
   });

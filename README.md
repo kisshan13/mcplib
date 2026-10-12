@@ -266,23 +266,30 @@ GET /openapi.json
 
 ### Platform endpoints
 
-| Method  | Endpoint                                                                  | Purpose                                                                        |
-| ------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `GET`   | `/health`                                                                 | Health check                                                                   |
-| `GET`   | `/api/v1/mcps`                                                            | List public MCP metadata                                                       |
-| `GET`   | `/api/v1/mcps/:id`                                                        | Retrieve one registered MCP                                                    |
-| `GET`   | `/api/v1/mcps/:id/tools`                                                  | List public tool descriptors for an MCP                                        |
-| `GET`   | `/api/v1/mcps/configuration/status`                                       | List platform MCP connection/configuration statuses for the authenticated user |
-| `GET`   | `/api/v1/mcps/:id/configuration?context=platform`                         | Retrieve platform-scoped MCP configuration                                     |
-| `GET`   | `/api/v1/mcps/:id/configuration?context=organization&organizationId=<id>` | Retrieve organization-scoped MCP configuration                                 |
-| `PUT`   | `/api/v1/mcps/:id/configuration`                                          | Create or update scoped MCP configuration                                      |
-| `GET`   | `/api/v1/organizations`                                                   | List organizations accessible to the authenticated user                        |
-| `POST`  | `/api/v1/organizations`                                                   | Create an organization                                                         |
-| `GET`   | `/api/v1/organizations/:id`                                               | Retrieve an organization                                                       |
-| `PATCH` | `/api/v1/organizations/:id`                                               | Update an organization                                                         |
-| `ALL`   | `/api/v1/platform/mcp/:mcpId`                                             | Platform MCP transport endpoint                                                |
-| `ALL`   | `/api/v1/mcp/:organizationId/:mcpId`                                      | Organization MCP transport endpoint                                            |
-| `ALL`   | `/api/v1/example/mcp`                                                     | Authenticated example MCP transport endpoint                                   |
+| Method   | Endpoint                                                                        | Purpose                                                                        |
+| -------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `GET`    | `/health`                                                                       | Health check                                                                   |
+| `GET`    | `/api/v1/mcps`                                                                  | List public MCP metadata                                                       |
+| `GET`    | `/api/v1/mcps/:id`                                                              | Retrieve one registered MCP                                                    |
+| `GET`    | `/api/v1/mcps/:id/tools`                                                        | List public tool descriptors for an MCP                                        |
+| `GET`    | `/api/v1/mcps/configuration/status`                                             | List platform MCP connection/configuration statuses for the authenticated user |
+| `GET`    | `/api/v1/mcps/:id/configuration?context=platform`                               | Retrieve platform-scoped MCP configuration                                     |
+| `GET`    | `/api/v1/mcps/:id/configuration?context=organization&organizationId=<id>`       | Retrieve organization-scoped MCP configuration                                 |
+| `PUT`    | `/api/v1/mcps/:id/configuration`                                                | Create or update scoped MCP configuration                                      |
+| `GET`    | `/api/v1/organizations`                                                         | List organizations accessible to the authenticated user                        |
+| `POST`   | `/api/v1/organizations`                                                         | Create an organization                                                         |
+| `GET`    | `/api/v1/organizations/:id`                                                     | Retrieve an organization                                                       |
+| `PATCH`  | `/api/v1/organizations/:id`                                                     | Update an organization                                                         |
+| `GET`    | `/api/v1/organizations/:id/members`                                             | List organization member profiles                                              |
+| `POST`   | `/api/v1/organizations/:id/members`                                             | Add an existing platform user to an organization                               |
+| `PATCH`  | `/api/v1/organizations/:id/members/:memberId`                                   | Update a member role                                                           |
+| `DELETE` | `/api/v1/organizations/:id/members/:memberId`                                   | Remove a member                                                                |
+| `GET`    | `/api/v1/organizations/:organizationId/members/:userId/service-tokens`          | List a member's organization service tokens                                    |
+| `POST`   | `/api/v1/organizations/:organizationId/members/:userId/service-tokens`          | Register or replace a member service token                                     |
+| `DELETE` | `/api/v1/organizations/:organizationId/members/:userId/service-tokens/:tokenId` | Revoke a member service token                                                  |
+| `ALL`    | `/api/v1/platform/mcp/:mcpId`                                                   | Platform MCP transport endpoint                                                |
+| `ALL`    | `/api/v1/mcp/:organizationId/:mcpId`                                            | Organization MCP transport endpoint                                            |
+| `ALL`    | `/api/v1/example/mcp`                                                           | Authenticated example MCP transport endpoint                                   |
 
 API keys are managed through the authenticated `/api/v1/api-keys` endpoints. A key has either a
 `platform` or `organization` scope and must be explicitly granted access to each MCP server. The
@@ -344,6 +351,12 @@ For an organization scope:
 ```
 
 The server validates values against the registered MCP's declared schema. Secret fields are not returned as plaintext in ordinary responses.
+
+Organization service-token registration accepts a `secretId`, `integrationId`, authentication
+method, and either an access token or a secure credential reference. Access and refresh tokens are
+encrypted before persistence and are never returned by the service-token endpoints. Only an
+organization owner or administrator can manage tokens for a member, and the target user must be an
+active member of that organization.
 
 ## Building an MCP
 

@@ -33,7 +33,7 @@ import {
   validateAndSanitizeConfigurationValues,
   validateDirectCredentialValue
 } from "./configuration-validation.js";
-import { findOrganizationMembership } from "../organizations/factory.js";
+import { findOrganizationMembership } from "../organizations/service.js";
 
 function getAuthenticatedUserId(req: Parameters<RequestHandler>[0]): string {
   if (!req.user?.id) {

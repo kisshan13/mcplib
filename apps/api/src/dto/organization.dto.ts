@@ -21,37 +21,23 @@ export type OrganizationResponse = z.infer<typeof dtoOrganization>;
 export const dtoOrganizationList = z.array(dtoOrganization).meta({ id: "OrganizationList" });
 
 export const dtoOrganizationEnvelope = z
-  .object({
-    data: dtoOrganization,
-    message: z.string(),
-    success: z.boolean()
-  })
+  .object({ data: dtoOrganization, message: z.string(), success: z.boolean() })
   .meta({ id: "OrganizationEnvelope" });
 
 export const dtoOrganizationListEnvelope = z
-  .object({
-    data: dtoOrganizationList,
-    message: z.string(),
-    success: z.boolean()
-  })
+  .object({ data: dtoOrganizationList, message: z.string(), success: z.boolean() })
   .meta({ id: "OrganizationListEnvelope" });
 
 openApiRegistry.registerPath({
   method: "post",
   path: "/api/v1/organizations",
   request: {
-    body: {
-      content: {
-        "application/json": { schema: validatorCreateOrganizationBody }
-      }
-    }
+    body: { content: { "application/json": { schema: validatorCreateOrganizationBody } } }
   },
   responses: {
     201: {
       description: "Organization created",
-      content: {
-        "application/json": { schema: dtoOrganizationEnvelope }
-      }
+      content: { "application/json": { schema: dtoOrganizationEnvelope } }
     }
   }
 });
@@ -62,9 +48,7 @@ openApiRegistry.registerPath({
   responses: {
     200: {
       description: "Organizations accessible to the authenticated user",
-      content: {
-        "application/json": { schema: dtoOrganizationListEnvelope }
-      }
+      content: { "application/json": { schema: dtoOrganizationListEnvelope } }
     }
   }
 });
@@ -76,9 +60,7 @@ openApiRegistry.registerPath({
   responses: {
     200: {
       description: "Organization details",
-      content: {
-        "application/json": { schema: dtoOrganizationEnvelope }
-      }
+      content: { "application/json": { schema: dtoOrganizationEnvelope } }
     }
   }
 });
@@ -88,18 +70,12 @@ openApiRegistry.registerPath({
   path: "/api/v1/organizations/{id}",
   request: {
     params: validatorOrganizationParams,
-    body: {
-      content: {
-        "application/json": { schema: validatorUpdateOrganizationBody }
-      }
-    }
+    body: { content: { "application/json": { schema: validatorUpdateOrganizationBody } } }
   },
   responses: {
     200: {
       description: "Organization updated",
-      content: {
-        "application/json": { schema: dtoOrganizationEnvelope }
-      }
+      content: { "application/json": { schema: dtoOrganizationEnvelope } }
     }
   }
 });

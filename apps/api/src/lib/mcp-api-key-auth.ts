@@ -25,6 +25,9 @@ export async function authenticateMcpApiKey(input: {
       verifier: true,
       expiresAt: true,
       revokedAt: true,
+      organization: {
+        select: { members: { select: { userId: true } } }
+      },
       mcpAccess: { where: { mcpId: input.mcpId }, select: { id: true } }
     }
   });
@@ -33,7 +36,8 @@ export async function authenticateMcpApiKey(input: {
     key.ownershipType === input.ownershipType &&
     (input.ownershipType === OAuthOwnershipType.PLATFORM
       ? key.organizationId === null
-      : key.organizationId === input.organizationId) &&
+      : key.organizationId === input.organizationId &&
+        key.organization?.members.some((member) => member.userId === key.userId)) &&
     key.revokedAt === null &&
     (!key.expiresAt || key.expiresAt.getTime() > Date.now()) &&
     key.mcpAccess.length > 0 &&

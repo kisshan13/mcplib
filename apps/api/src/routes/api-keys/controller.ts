@@ -11,7 +11,7 @@ import { ApiError } from "../../lib/error.js";
 import ApiResponse from "../../lib/response.js";
 import { requestHandler } from "../../utils/request-handler.js";
 import { mcpRegistry } from "../../registry/mcp-registry.js";
-import { findOrganizationMembership } from "../organizations/factory.js";
+import { findOrganizationMembership } from "../organizations/service.js";
 import {
   createApiKey,
   findManageableApiKey,

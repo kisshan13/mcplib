@@ -19,13 +19,10 @@ import {
   findOrganizationMembership,
   listOrganizations,
   updateOrganization
-} from "./factory.js";
+} from "./service.js";
 
 function getAuthenticatedUserId(req: Parameters<RequestHandler>[0]): string {
-  if (!req.user?.id) {
-    throw new ApiError("Unauthorized", 401);
-  }
-
+  if (!req.user?.id) throw new ApiError("Unauthorized", 401);
   return req.user.id;
 }
 
@@ -47,11 +44,7 @@ function toOrganizationResponse(organization: {
 
 async function getOrganizationMembership(organizationId: string, userId: string) {
   const membership = await findOrganizationMembership(organizationId, userId);
-
-  if (!membership) {
-    throw new ApiError("Organization not found", 404);
-  }
-
+  if (!membership) throw new ApiError("Organization not found", 404);
   return membership;
 }
 
@@ -62,22 +55,17 @@ function assertCanManageOrganization(role: OrganizationRole): void {
 }
 
 export const controllerCreateOrganization: RequestHandler = requestHandler(async (req) => {
-  const userId = getAuthenticatedUserId(req);
   const body = validatorCreateOrganizationBody.parse(req.body);
-
   const organization = await createOrganization({
     name: body.name,
     description: body.description ?? null,
-    userId
+    userId: getAuthenticatedUserId(req)
   });
-
   return new ApiResponse(toOrganizationResponse(organization), "Organization created", 201);
 });
 
 export const controllerListOrganizations: RequestHandler = requestHandler(async (req) => {
-  const userId = getAuthenticatedUserId(req);
-  const organizations = await listOrganizations(userId);
-
+  const organizations = await listOrganizations(getAuthenticatedUserId(req));
   return new ApiResponse(
     dtoOrganizationList.parse(organizations.map(toOrganizationResponse)),
     "Organizations retrieved"
@@ -85,25 +73,17 @@ export const controllerListOrganizations: RequestHandler = requestHandler(async 
 });
 
 export const controllerGetOrganization: RequestHandler = requestHandler(async (req) => {
-  const userId = getAuthenticatedUserId(req);
   const { id } = validatorOrganizationParams.parse(req.params);
-
-  await getOrganizationMembership(id, userId);
-
+  await getOrganizationMembership(id, getAuthenticatedUserId(req));
   const organization = await findOrganization(id);
-  if (!organization) {
-    throw new ApiError("Organization not found", 404);
-  }
-
+  if (!organization) throw new ApiError("Organization not found", 404);
   return new ApiResponse(toOrganizationResponse(organization), "Organization retrieved");
 });
 
 export const controllerUpdateOrganization: RequestHandler = requestHandler(async (req) => {
-  const userId = getAuthenticatedUserId(req);
   const { id } = validatorOrganizationParams.parse(req.params);
   const body = validatorUpdateOrganizationBody.parse(req.body);
-  const membership = await getOrganizationMembership(id, userId);
-
+  const membership = await getOrganizationMembership(id, getAuthenticatedUserId(req));
   assertCanManageOrganization(membership.role);
 
   const data = {
@@ -112,8 +92,6 @@ export const controllerUpdateOrganization: RequestHandler = requestHandler(async
       ? { description: body.description }
       : {})
   };
-
   const organization = await updateOrganization(id, data);
-
   return new ApiResponse(toOrganizationResponse(organization), "Organization updated");
 });
