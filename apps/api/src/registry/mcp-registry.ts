@@ -1,6 +1,7 @@
 import type { RequestHandler } from "express";
 import { z } from "zod";
 import exampleMcp from "@packages/example-mcp";
+import firecrawlMcp from "@packages/firecrawl-mcp";
 import githubMcp from "@packages/github-mcp";
 import { env } from "../config/env.js";
 import { databaseSecretProvider } from "../lib/secret-provider.js";
@@ -20,6 +21,7 @@ type GithubPlatformConfiguration = {
 
 export const mcpRegistry = new McpRegistry();
 mcpRegistry.register(exampleMcp);
+mcpRegistry.register(firecrawlMcp);
 const githubPlatformConfigProvider: McpConfigurationProvider<
   GithubPlatformConfiguration
 > = async () => {
