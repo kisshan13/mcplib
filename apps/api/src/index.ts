@@ -12,7 +12,8 @@ import {
   exampleRoutes,
   mcpOAuthRoutes,
   mcpRegistryRoutes,
-  organizationRoutes
+  organizationRoutes,
+  apiKeyRoutes
 } from "./routes/index.js";
 import authMiddleware from "./middlewares/auth.middleware.js";
 import mcpRoutes from "./mcp.js";
@@ -41,6 +42,7 @@ app.use("/api/v1", mcpRoutes);
 app.use("/api/v1/mcps", mcpOAuthRoutes);
 app.use("/api/v1/mcps", mcpRegistryRoutes);
 app.use("/api/v1/organizations", authMiddleware(), organizationRoutes);
+app.use("/api/v1/api-keys", apiKeyRoutes);
 app.use("/api/v1/example", exampleRoutes);
 app.use(errorMiddleware);
 

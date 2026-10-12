@@ -4,6 +4,7 @@ import { ApiError } from "../lib/error.js";
 import logger from "../lib/pino.js";
 
 const errorMiddleware: ErrorRequestHandler = (error, _req, res, _next) => {
+  console.log(error);
   if (error instanceof ZodError) {
     res.status(400).json({
       success: false,

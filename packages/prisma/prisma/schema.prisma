@@ -56,6 +56,7 @@ model User {
   sessions Session[]
   accounts Account[]
   serviceTokens ServiceToken[]
+  apiKeys       ApiKey[]
   organizationMemberships OrganizationMember[]
 
   @@map("user")
@@ -72,6 +73,7 @@ model Organization {
   serviceTokens     ServiceToken[]
   mcpConfigurations McpConfiguration[]
   members           OrganizationMember[]
+  apiKeys           ApiKey[]
 
   @@map("organization")
 }
@@ -165,6 +167,45 @@ model ServiceToken {
   @@index([integrationId, serviceProvider])
   @@index([status])
   @@map("service_token")
+}
+
+model ApiKey {
+  id             String             @id @default(cuid())
+  name           String
+  description    String?
+  ownershipType  OAuthOwnershipType
+  organizationId String?
+  userId         String
+  prefix         String             @unique
+  verifier       String
+  expiresAt      DateTime?
+  revokedAt      DateTime?
+  lastUsedAt     DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  organization Organization?     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mcpAccess    ApiKeyMcpAccess[]
+
+  @@index([ownershipType, organizationId])
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([revokedAt])
+  @@map("api_key")
+}
+
+model ApiKeyMcpAccess {
+  id        String   @id @default(cuid())
+  apiKeyId  String
+  mcpId     String
+  createdAt DateTime @default(now())
+
+  apiKey ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+  @@unique([apiKeyId, mcpId])
+  @@index([mcpId])
+  @@map("api_key_mcp_access")
 }
 
 model Session {

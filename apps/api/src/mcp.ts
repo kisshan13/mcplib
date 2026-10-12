@@ -10,9 +10,9 @@ import {
 
 const mcpRoutes: Router = Router();
 
-mcpRoutes.all("/platform/mcp/:mcp-id", platformMcpAuthMiddleware(), platformMcpHandler);
+mcpRoutes.all("/platform/mcp/:mcpId", platformMcpAuthMiddleware(), platformMcpHandler);
 mcpRoutes.all(
-  "/mcp/:organization-id/:mcp-id",
+  "/mcp/:organizationId/:mcpId",
   organizationMcpAuthMiddleware(),
   organizationMcpHandler
 );

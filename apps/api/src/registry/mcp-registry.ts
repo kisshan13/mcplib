@@ -45,31 +45,32 @@ mcpRegistry.register(githubMcp, {
 });
 
 const platformMcpParams = z.object({
-  "mcp-id": z.string().trim().min(1)
+  mcpId: z.string().trim().min(1)
 });
 
 const organizationMcpParams = z.object({
-  "organization-id": z.string().trim().min(1),
-  "mcp-id": z.string().trim().min(1)
+  organizationId: z.string().trim().min(1),
+  mcpId: z.string().trim().min(1)
 });
 
 export const platformMcpHandler: RequestHandler = createMcpRequestHandler(
   mcpRegistry,
   (request) => ({
     secretProvider: databaseSecretProvider,
-    userId: request.user?.id
+    userId: request.apiKey?.userId ?? request.user?.id
   }),
-  (request) => platformMcpParams.parse(request.params)["mcp-id"]
+  (request) => platformMcpParams.parse(request.params).mcpId
 );
 
 export const organizationMcpHandler: RequestHandler = createMcpRequestHandler(
   mcpRegistry,
   (request) => ({
     secretProvider: databaseSecretProvider,
-    userId: request.user?.id,
-    organizationId: organizationMcpParams.parse(request.params)["organization-id"]
+    userId: request.apiKey?.userId ?? request.user?.id,
+    organizationId:
+      request.apiKey?.organizationId ?? organizationMcpParams.parse(request.params).organizationId
   }),
-  (request) => organizationMcpParams.parse(request.params)["mcp-id"]
+  (request) => organizationMcpParams.parse(request.params).mcpId
 );
 
 export const exampleMcpHandler: RequestHandler = createMcpRequestHandler(

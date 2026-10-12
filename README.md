@@ -280,9 +280,29 @@ GET /openapi.json
 | `POST`  | `/api/v1/organizations`                                                   | Create an organization                                                         |
 | `GET`   | `/api/v1/organizations/:id`                                               | Retrieve an organization                                                       |
 | `PATCH` | `/api/v1/organizations/:id`                                               | Update an organization                                                         |
-| `ALL`   | `/api/v1/platform/mcp/:mcp-id`                                            | Platform MCP transport endpoint                                                |
-| `ALL`   | `/api/v1/mcp/:organization-id/:mcp-id`                                    | Organization MCP transport endpoint                                            |
+| `ALL`   | `/api/v1/platform/mcp/:mcpId`                                             | Platform MCP transport endpoint                                                |
+| `ALL`   | `/api/v1/mcp/:organizationId/:mcpId`                                      | Organization MCP transport endpoint                                            |
 | `ALL`   | `/api/v1/example/mcp`                                                     | Authenticated example MCP transport endpoint                                   |
+
+API keys are managed through the authenticated `/api/v1/api-keys` endpoints. A key has either a
+`platform` or `organization` scope and must be explicitly granted access to each MCP server. The
+complete secret is returned only by `POST /api/v1/api-keys`; copy it immediately because only its
+verifier and safe prefix are stored. Use it as `Authorization: Bearer mcpl_<prefix>_<secret>` or
+`X-API-Key: mcpl_<prefix>_<secret>`. Platform transport requests use platform keys; organization
+transport requests use organization keys whose organization ID matches the URL. Revoked and expired
+keys fail authentication.
+
+The key management endpoints are:
+
+```text
+POST   /api/v1/api-keys
+GET    /api/v1/api-keys
+GET    /api/v1/api-keys/:keyId
+POST   /api/v1/api-keys/:keyId/revoke
+GET    /api/v1/api-keys/:keyId/mcp-access
+POST   /api/v1/api-keys/:keyId/mcp-access
+DELETE /api/v1/api-keys/:keyId/mcp-access/:mcpId
+```
 
 MCP configuration endpoints use a typed context. Platform requests omit an organization ID; organization requests must provide one and are checked against the caller's membership.
 

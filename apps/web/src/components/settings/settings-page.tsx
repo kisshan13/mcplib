@@ -1,4 +1,5 @@
 import { McpIntegrationsSection } from "./mcp-integrations-section";
+import { ApiKeysSection } from "./api-keys-section";
 import { authClient } from "@/lib/auth";
 
 function getInitials(name: string | undefined, email: string | undefined) {
@@ -69,6 +70,8 @@ export function SettingsPage() {
         </h2>
         <McpIntegrationsSection />
       </section>
+
+      <ApiKeysSection />
     </div>
   );
 }

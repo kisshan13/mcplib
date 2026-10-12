@@ -1,11 +1,18 @@
 import type { RequestHandler } from "express";
+import { OAuthOwnershipType } from "@packages/prisma";
+import { authenticateMcpApiKey } from "../lib/mcp-api-key-auth.js";
 
-/**
- * Platform MCP API-key authentication will be implemented here.
- * This middleware is mounted only on the platform MCP route.
- */
 export default function platformMcpAuthMiddleware(): RequestHandler {
-  return (_req, _res, next) => {
-    next();
+  return async (req, _res, next) => {
+    try {
+      await authenticateMcpApiKey({
+        request: req,
+        mcpId: typeof req.params.mcpId === "string" ? req.params.mcpId : "",
+        ownershipType: OAuthOwnershipType.PLATFORM
+      });
+      next();
+    } catch (error) {
+      next(error);
+    }
   };
 }
