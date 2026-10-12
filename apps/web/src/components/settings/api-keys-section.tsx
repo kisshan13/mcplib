@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react";
-import { useMcpRegistryQuery } from "@/hooks/query/use-mcp-registry-query";
-import { useOrganizationsQuery } from "@/hooks/query/use-organizations-query";
-import { useApiKeyMcpAccessQuery, useApiKeysQuery } from "@/hooks/query/use-api-keys-query";
+import { useMcpRegistryQuery } from "@/hooks/query/mcp.query";
+import { useOrganizationsQuery } from "@/hooks/query/organization.query";
+import { useApiKeyMcpAccessQuery, useApiKeysQuery } from "@/hooks/query/api-key.query";
 import {
   useCreateApiKeyMutation,
   useGrantApiKeyMcpAccessMutation,
   useRevokeApiKeyMcpAccessMutation,
   useRevokeApiKeyMutation
-} from "@/hooks/query/use-api-key-mutations";
+} from "@/hooks/query/api-key.query";
 import type { ApiKeyType } from "@/core-api/types/api-key";
 
 function formatDate(value: string | null) {
@@ -157,7 +157,7 @@ function CreateApiKeyForm() {
       },
       {
         onSuccess: (result) => {
-          setSecret(result.secret);
+          setSecret((result as { secret: string }).secret);
           setName("");
           setDescription("");
         }

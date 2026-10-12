@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import { useMcpQuery } from "@/hooks/query/use-mcp-query";
-import { useMcpConfigurationStatusesQuery } from "@/hooks/query/use-mcp-configuration-status-query";
+import { useMcpConfigurationStatusesQuery, useMcpQuery } from "@/hooks/query/mcp.query";
 import { McpConfigurationForm } from "./mcp-configuration-form";
 import { McpImage } from "./mcp-image";
 import { McpToolsSection } from "./mcp-tools-section";

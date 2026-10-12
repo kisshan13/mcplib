@@ -1,5 +1,5 @@
 import { Surface } from "@/components/ui";
-import { useMcpConfigurationStatusesQuery } from "@/hooks/query/use-mcp-configuration-status-query";
+import { useMcpConfigurationStatusesQuery } from "@/hooks/query/mcp.query";
 
 function getStatusLabel(
   status: "connected" | "needs_authorization" | "not_configured" | "not_required"

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/layout/app-shell";
-import { useExampleQuery } from "@/hooks/query/use-example-query";
+import { useExampleQuery } from "@/hooks/query/example.query";
 
 export const Route = createFileRoute("/example")({
   component: ExampleRoute

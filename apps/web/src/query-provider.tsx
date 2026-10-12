@@ -1,24 +1,38 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { UseMutationOptions } from "@tanstack/react-query";
-import type { ReactNode } from "react";
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 
-export type OmittedMutationFunction<T> = Omit<
-  UseMutationOptions<unknown, Error, T>,
-  "mutationFn"
->;
+import {
+  MutationCache,
+  QueryClient,
+  QueryClientProvider,
+  useMutation,
+  UseMutationOptions
+} from "@tanstack/react-query";
+import React from "react";
 
-export function QueryProvider({ children }: { children: ReactNode }) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 30_000
-          }
-        }
-      })
-  );
+const queryClient = new QueryClient({
+  mutationCache: new MutationCache({
+    onSuccess: (data, variables, context, mutation) => {
+      mutation.options.mutationKey?.forEach((key) => {
+        queryClient.invalidateQueries({
+          queryKey: [key]
+        });
+      });
+    }
+  })
+});
 
+export type OmittedMutationFunction<T> = Omit<UseMutationOptions<unknown, any, T>, "mutationFn">;
+
+export function useWrappedMutation<T>(options: OmittedMutationFunction<T>, fn: (data: T) => any) {
+  return useMutation<unknown, any, T>({
+    ...options,
+    mutationFn: (data: T) => {
+      return fn(data);
+    }
+  });
+}
+
+export function QueryProvider({ children }: { children?: React.ReactNode }) {
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }

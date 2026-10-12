@@ -1,7 +1,7 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { API_URL } from "@/config/constants";
 import type { McpMetadata } from "@/core-api/types/mcp-registry";
-import { useMcpDirectCredentialMutation } from "@/hooks/query/use-mcp-direct-credential-mutation";
+import { useMcpDirectCredentialMutation } from "@/hooks/query/mcp.query";
 import type { McpViewContext } from "./mcp-view-context";
 
 type SecretProviderConfiguration = NonNullable<McpMetadata["secretProviderConfiguration"]>;

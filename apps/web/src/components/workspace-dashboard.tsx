@@ -1,8 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { McpImage } from "@/components/mcps/mcp-image";
-import { useApiKeysQuery } from "@/hooks/query/use-api-keys-query";
-import { useMcpConfigurationStatusesQuery } from "@/hooks/query/use-mcp-configuration-status-query";
-import { useMcpRegistryQuery } from "@/hooks/query/use-mcp-registry-query";
+import { useApiKeysQuery } from "@/hooks/query/api-key.query";
+import { useMcpConfigurationStatusesQuery, useMcpRegistryQuery } from "@/hooks/query/mcp.query";
 
 function isActiveKey(key: { revokedAt: string | null; expiresAt: string | null }) {
   return !key.revokedAt && (!key.expiresAt || new Date(key.expiresAt) > new Date());

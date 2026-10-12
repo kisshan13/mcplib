@@ -5,31 +5,25 @@ export type {
   Organization,
   OrganizationListResponseEnvelope,
   OrganizationResponseEnvelope,
-  UpdateOrganizationInput
-} from "./organization";
-export type {
   AddOrganizationMemberInput,
+  CreateOrganizationProfileInput,
+  OrganizationProfile,
+  OrganizationProfileListResponseEnvelope,
+  OrganizationProfileResponseEnvelope,
   OrganizationMember,
   OrganizationMemberListResponseEnvelope,
   OrganizationMemberResponseEnvelope,
   OrganizationMemberRole,
-  UpdateOrganizationMemberInput
-} from "./organization-member";
-export type {
   OrganizationServiceToken,
   OrganizationServiceTokenAuthenticationMethod,
   OrganizationServiceTokenListResponseEnvelope,
   OrganizationServiceTokenResponseEnvelope,
   OrganizationServiceTokenStatus,
-  RegisterOrganizationServiceTokenInput
-} from "./organization-service-token";
-export type {
-  CreateOrganizationProfileInput,
-  OrganizationProfile,
-  OrganizationProfileListResponseEnvelope,
-  OrganizationProfileResponseEnvelope,
-  UpdateOrganizationProfileInput
-} from "./organization-profile";
+  RegisterOrganizationServiceTokenInput,
+  UpdateOrganizationMemberInput,
+  UpdateOrganizationProfileInput,
+  UpdateOrganizationInput
+} from "./organization";
 export type {
   McpConfiguration,
   McpConfigurationContext,

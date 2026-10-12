@@ -1,3 +1,3 @@
-export async function getCurrentUser(): Promise<unknown> {
+export async function apiGetCurrentUser(): Promise<unknown> {
   return undefined;
 }

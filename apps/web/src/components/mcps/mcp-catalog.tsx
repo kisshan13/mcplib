@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useMcpRegistryQuery } from "@/hooks/query/use-mcp-registry-query";
+import { useMcpRegistryQuery } from "@/hooks/query/mcp.query";
 import { McpCatalogHeader } from "./mcp-catalog-header";
 import { McpCatalogToolbar } from "./mcp-catalog-toolbar";
 import { McpCardSkeleton } from "./mcp-card-skeleton";

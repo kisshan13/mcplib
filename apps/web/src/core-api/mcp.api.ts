@@ -9,22 +9,22 @@ import type {
   McpDirectCredentialResponseEnvelope
 } from "./types/mcp-registry";
 
-export async function listMcpRegistry() {
+export async function apiGetMcpRegistry() {
   const response = await apiClient.get<McpMetadataListResponseEnvelope>("/mcps");
   return response.data.data;
 }
 
-export async function getMcpRegistryEntry(id: string) {
+export async function apiGetMcp(id: string) {
   const response = await apiClient.get<McpMetadataResponseEnvelope>(`/mcps/${id}`);
   return response.data.data;
 }
 
-export async function listMcpTools(id: string) {
+export async function apiGetMcpTools(id: string) {
   const response = await apiClient.get<McpToolsListResponseEnvelope>(`/mcps/${id}/tools`);
   return response.data.data;
 }
 
-export async function getMcpConfiguration(id: string, context: McpConfigurationContext) {
+export async function apiGetMcpConfiguration(id: string, context: McpConfigurationContext) {
   const response = await apiClient.get<McpConfigurationResponseEnvelope>(
     `/mcps/${id}/configuration`,
     {
@@ -34,11 +34,10 @@ export async function getMcpConfiguration(id: string, context: McpConfigurationC
       }
     }
   );
-
   return response.data.data;
 }
 
-export async function saveMcpConfiguration(
+export async function apiSaveMcpConfiguration(
   id: string,
   context: McpConfigurationContext,
   values: Record<string, unknown>
@@ -47,11 +46,10 @@ export async function saveMcpConfiguration(
     `/mcps/${id}/configuration`,
     { context, values }
   );
-
   return response.data.data;
 }
 
-export async function saveMcpDirectCredential(
+export async function apiSaveMcpDirectCredential(
   id: string,
   context: McpConfigurationContext,
   values: Record<string, unknown>
@@ -60,11 +58,10 @@ export async function saveMcpDirectCredential(
     `/mcps/${id}/credential`,
     { context, values }
   );
-
   return response.data.data;
 }
 
-export async function listMcpConfigurationStatuses() {
+export async function apiGetMcpConfigurationStatuses() {
   const response = await apiClient.get<McpConfigurationStatusListResponseEnvelope>(
     "/mcps/configuration/status"
   );

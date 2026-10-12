@@ -1,4 +1,4 @@
-import { useMcpToolsQuery } from "@/hooks/query/use-mcp-tools-query";
+import { useMcpToolsQuery } from "@/hooks/query/mcp.query";
 
 export function McpToolsSection({ mcpId }: { mcpId: string }) {
   const query = useMcpToolsQuery(mcpId);
