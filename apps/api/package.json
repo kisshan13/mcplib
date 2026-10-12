@@ -18,7 +18,9 @@
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^9.1.0",
     "@packages/example-mcp": "workspace:*",
+    "@packages/firecrawl-mcp": "workspace:*",
     "@packages/github-mcp": "workspace:*",
+    "@packages/slack-mcp": "workspace:*",
     "@packages/mcp-core": "workspace:*",
     "@packages/mcplib-core": "workspace:*",
     "@packages/prisma": "workspace:*",

@@ -51,7 +51,7 @@ export const controllerCompletePlatformMcpOAuth: RequestHandler = async (req, re
     }
 
     if (query.error) {
-      throw new McpOAuthError("GitHub authorization was not completed.", 400);
+      throw new McpOAuthError("OAuth authorization was not completed.", 400);
     }
 
     await completePlatformMcpOAuth({

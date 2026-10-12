@@ -10,7 +10,10 @@ const envSchema = z.object({
   MCPLIB_SECRET_ENCRYPTION_KEY: z.string().trim().optional(),
   GITHUB_OAUTH_CLIENT_ID: z.string().trim().optional(),
   GITHUB_OAUTH_CLIENT_SECRET: z.string().trim().optional(),
-  GITHUB_OAUTH_REDIRECT_URI: z.string().url().optional()
+  GITHUB_OAUTH_REDIRECT_URI: z.string().url().optional(),
+  SLACK_OAUTH_CLIENT_ID: z.string().trim().optional(),
+  SLACK_OAUTH_CLIENT_SECRET: z.string().trim().optional(),
+  SLACK_OAUTH_REDIRECT_URI: z.string().url().optional()
 });
 
 export const env = envSchema.parse(process.env);
