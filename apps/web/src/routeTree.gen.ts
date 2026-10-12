@@ -17,6 +17,8 @@ import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppMcpsRouteImport } from './routes/app/mcps'
 import { Route as AppSettingsRouteRouteImport } from './routes/app/settings/route'
 import { Route as AppSettingsIndexRouteImport } from './routes/app/settings/index'
+import { Route as AppSettingsApiKeysRouteImport } from './routes/app/settings/api-keys'
+import { Route as AppSettingsMcpsRouteImport } from './routes/app/settings/mcps'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +60,16 @@ const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppSettingsRouteRoute,
 } as any)
+const AppSettingsApiKeysRoute = AppSettingsApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
+const AppSettingsMcpsRoute = AppSettingsMcpsRouteImport.update({
+  id: '/mcps',
+  path: '/mcps',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -67,6 +79,8 @@ export interface FileRoutesByFullPath {
   '/app/settings': typeof AppSettingsRouteRouteWithChildren
   '/app/mcps': typeof AppMcpsRoute
   '/app/': typeof AppIndexRoute
+  '/app/settings/api-keys': typeof AppSettingsApiKeysRoute
+  '/app/settings/mcps': typeof AppSettingsMcpsRoute
   '/app/settings/': typeof AppSettingsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -75,6 +89,8 @@ export interface FileRoutesByTo {
   '/example': typeof ExampleRoute
   '/app/mcps': typeof AppMcpsRoute
   '/app': typeof AppIndexRoute
+  '/app/settings/api-keys': typeof AppSettingsApiKeysRoute
+  '/app/settings/mcps': typeof AppSettingsMcpsRoute
   '/app/settings': typeof AppSettingsIndexRoute
 }
 export interface FileRoutesById {
@@ -86,6 +102,8 @@ export interface FileRoutesById {
   '/app/settings': typeof AppSettingsRouteRouteWithChildren
   '/app/mcps': typeof AppMcpsRoute
   '/app/': typeof AppIndexRoute
+  '/app/settings/api-keys': typeof AppSettingsApiKeysRoute
+  '/app/settings/mcps': typeof AppSettingsMcpsRoute
   '/app/settings/': typeof AppSettingsIndexRoute
 }
 export interface FileRouteTypes {
@@ -98,9 +116,19 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/mcps'
     | '/app/'
+    | '/app/settings/api-keys'
+    | '/app/settings/mcps'
     | '/app/settings/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/example' | '/app/mcps' | '/app' | '/app/settings'
+  to:
+    | '/'
+    | '/auth'
+    | '/example'
+    | '/app/mcps'
+    | '/app'
+    | '/app/settings/api-keys'
+    | '/app/settings/mcps'
+    | '/app/settings'
   id:
     | '__root__'
     | '/'
@@ -110,6 +138,8 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/mcps'
     | '/app/'
+    | '/app/settings/api-keys'
+    | '/app/settings/mcps'
     | '/app/settings/'
   fileRoutesById: FileRoutesById
 }
@@ -178,14 +208,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsIndexRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
+    '/app/settings/api-keys': {
+      id: '/app/settings/api-keys'
+      path: '/api-keys'
+      fullPath: '/app/settings/api-keys'
+      preLoaderRoute: typeof AppSettingsApiKeysRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/app/settings/mcps': {
+      id: '/app/settings/mcps'
+      path: '/mcps'
+      fullPath: '/app/settings/mcps'
+      preLoaderRoute: typeof AppSettingsMcpsRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
   }
 }
 
 interface AppSettingsRouteRouteChildren {
+  AppSettingsApiKeysRoute: typeof AppSettingsApiKeysRoute
+  AppSettingsMcpsRoute: typeof AppSettingsMcpsRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
 }
 
 const AppSettingsRouteRouteChildren: AppSettingsRouteRouteChildren = {
+  AppSettingsApiKeysRoute: AppSettingsApiKeysRoute,
+  AppSettingsMcpsRoute: AppSettingsMcpsRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
 }
 

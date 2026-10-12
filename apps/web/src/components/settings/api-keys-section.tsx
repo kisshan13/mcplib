@@ -35,7 +35,11 @@ export function ApiKeysSection() {
   const selected = query.data?.items.find((item) => item.id === selectedId) ?? null;
 
   return (
-    <section aria-labelledby="api-keys-title" className="space-y-4 border-t border-zinc-800 pt-6">
+    <section
+      id="api-keys"
+      aria-labelledby="api-keys-title"
+      className="scroll-mt-6 space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/60 p-6"
+    >
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 id="api-keys-title" className="text-sm font-medium text-white">
