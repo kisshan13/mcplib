@@ -1,0 +1,28 @@
+---
+$schema: https://holocron.so/frontmatter.json
+title: Components
+description: Explore MCPLib's reusable MCP packages and their responsibilities.
+icon: cubes
+---
+
+# Components
+
+MCPLib separates protocol handling, platform APIs, credential access, and individual MCP implementations into workspace packages.
+
+## MCP toolkit
+
+`@packages/mcp-core` wraps the Model Context Protocol TypeScript SDK. It provides typed tool definitions, Zod input and output schemas, public tool descriptors, runtime context, and an Express-compatible Streamable HTTP handler.
+
+## Shared core
+
+`@packages/mcplib-core` contains shared credential abstractions. MCP implementations request credentials through the `SecretProvider` boundary instead of reading platform storage directly.
+
+## MCP implementations
+
+The repository includes `example-mcp`, `github-mcp`, `slack-mcp`, and `firecrawl-mcp`. Implementations declare their metadata, tools, and configuration requirements and use the shared toolkit to expose them.
+
+## Applications
+
+- `apps/api` provides registry, organization, configuration, authentication, and MCP endpoints.
+- `apps/web` provides the authenticated workspace and MCP catalog.
+- `packages/prisma` contains the database schema and generated client.

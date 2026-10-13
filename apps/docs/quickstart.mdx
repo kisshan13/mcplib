@@ -1,0 +1,53 @@
+---
+$schema: https://holocron.so/frontmatter.json
+title: Quickstart
+description: Set up MCPLib and run the API and web app locally.
+icon: bolt
+---
+
+# Quickstart
+
+MCPLib is a pnpm workspace with an Express API, a TanStack Start web app, and shared MCP packages.
+
+## Requirements
+
+- Node.js 20.19 or newer
+- pnpm 10 or newer
+- PostgreSQL
+
+## Install and configure
+
+From the repository root, install dependencies and copy the environment templates:
+
+```bash
+pnpm install
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+cp packages/prisma/.env.example packages/prisma/.env
+```
+
+Set `DATABASE_URL` in `apps/api/.env` and `packages/prisma/.env` to your PostgreSQL connection string. Set `VITE_API_URL` in `apps/web/.env` to `http://localhost:3000`.
+
+Generate the Prisma client:
+
+```bash
+pnpm --filter @packages/prisma generate
+```
+
+## Run the apps
+
+Start the API and web app in separate terminals:
+
+```bash
+pnpm --filter @apps/api dev
+pnpm --filter @apps/web dev
+```
+
+The API listens on port `3000`; the web app listens on port `3001`.
+
+## Build the workspace
+
+```bash
+pnpm run typecheck
+pnpm run build
+```

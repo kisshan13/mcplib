@@ -1,0 +1,20 @@
+{
+  "$schema": "https://holocron.so/docs.json",
+  "name": "MCPLib",
+  "colors": {
+    "primary": "#7c8cff"
+  },
+  "redirects": [
+    { "source": "/project-structure", "destination": "/components" },
+    { "source": "/packages/mcp-core/README", "destination": "/components" },
+    { "source": "/AGENTS", "destination": "/quickstart" },
+    { "source": "/product", "destination": "/" },
+    { "source": "/frontend-content", "destination": "/components" }
+  ],
+  "navigation": [
+    {
+      "group": "MCPLib",
+      "pages": ["index", "quickstart", "components", "deploy"]
+    }
+  ]
+}

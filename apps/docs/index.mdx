@@ -1,0 +1,32 @@
+---
+$schema: https://holocron.so/frontmatter.json
+title: MCPLib — MCP infrastructure
+sidebarTitle: MCPLib
+description: Open-source infrastructure for discovering, configuring, and accessing MCP servers.
+icon: house
+---
+
+import { HeroSection } from "./components/hero-section.tsx";
+import Readme from "../../README.md";
+
+<Above>
+  <HeroSection />
+</Above>
+
+<Readme />
+
+## Explore
+
+<CardGroup cols={3}>
+  <Card title="Quickstart" icon="bolt" href="/quickstart">
+    Install MCPLib, configure the API, and run the workspace locally.
+  </Card>
+
+  <Card title="Components" icon="cubes" href="/components">
+    Learn how the MCP toolkit and shared packages fit together.
+  </Card>
+
+  <Card title="Deploy" icon="cloud-arrow-up" href="/deploy">
+    Prepare the API, web app, and database for a deployment environment.
+  </Card>
+</CardGroup>
