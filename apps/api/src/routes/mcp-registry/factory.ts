@@ -1,4 +1,3 @@
-import { Router } from "express";
 import { env } from "../../config/env.js";
 import {
   AuthenticationMethod,
@@ -11,19 +10,17 @@ import {
 import type { McpMetadata } from "@packages/mcp-core";
 import prisma from "../../lib/prisma.js";
 import { encryptCredential } from "../../lib/credential-encryption.js";
-import {
-  controllerGetMcpConfiguration,
-  controllerGetMcpRegistryEntry,
-  controllerListMcpTools,
-  controllerListMcpRegistry,
-  controllerListMcpConfigurationStatuses,
-  controllerUpsertMcpConfiguration,
-  controllerUpsertMcpDirectCredential
-} from "./controller.js";
-import type { McpConfigurationContext } from "./validator.js";
-import authMiddleware from "../../middlewares/auth.middleware.js";
-import { resolveMcpConfiguration } from "../../lib/registry.js";
+import { validatorMcpConfigurationQuery, type McpConfigurationContext } from "./validator.js";
+import { getRegisteredMcp, McpRegistryError, resolveMcpConfiguration } from "../../lib/registry.js";
 import { mcpRegistry } from "../../registry/mcp-registry.js";
+import { findOrganizationMembership } from "../organizations/service.js";
+import { OrganizationRole } from "@packages/prisma";
+import { ApiError } from "../../lib/error.js";
+import {
+  validateAndSanitizeConfigurationValues,
+  validateDirectCredentialValue,
+  sanitizeStoredConfigurationValues
+} from "./configuration-validation.js";
 
 export async function listPlatformMcpConfigurationStatuses(userId: string) {
   const metadata = mcpRegistry.list();
@@ -200,16 +197,136 @@ export function getMcpConfigurationMetadata(metadata: McpMetadata) {
   return configuration;
 }
 
-export function factoryMcpRegistryRouter(): Router {
-  const router = Router();
+export function listMcpMetadata() {
+  return mcpRegistry.list();
+}
 
-  router.get("/", controllerListMcpRegistry);
-  router.get("/configuration/status", authMiddleware(), controllerListMcpConfigurationStatuses);
-  router.get("/:id/configuration", authMiddleware(), controllerGetMcpConfiguration);
-  router.put("/:id/configuration", authMiddleware(), controllerUpsertMcpConfiguration);
-  router.put("/:id/credential", authMiddleware(), controllerUpsertMcpDirectCredential);
-  router.get("/:id/tools", controllerListMcpTools);
-  router.get("/:id", controllerGetMcpRegistryEntry);
+export function getMcpMetadata(id: string) {
+  try {
+    return mcpRegistry.get(id).metadata;
+  } catch (error) {
+    if (error instanceof McpRegistryError && error.code === "UNKNOWN") {
+      throw new ApiError(error.message, 404);
+    }
+    throw error;
+  }
+}
 
-  return router;
+export function listMcpTools(id: string) {
+  try {
+    return mcpRegistry.listTools(id);
+  } catch (error) {
+    if (error instanceof McpRegistryError && error.code === "UNKNOWN") {
+      throw new ApiError(error.message, 404);
+    }
+    throw error;
+  }
+}
+
+function getConfigurationContextFromQuery(
+  query: ReturnType<typeof validatorMcpConfigurationQuery.parse>
+): McpConfigurationContext {
+  if (query.context === "platform") return { type: "platform" };
+  if (!query.organizationId) {
+    throw new ApiError("organizationId is required for organization context", 400);
+  }
+  return { type: "organization", id: query.organizationId };
+}
+
+async function assertConfigurationAccess(
+  context: McpConfigurationContext,
+  userId: string,
+  canManage: boolean
+) {
+  if (context.type === "platform") return;
+  const membership = await findOrganizationMembership(context.id, userId);
+  if (!membership) throw new ApiError("Organization not found", 404);
+  if (
+    canManage &&
+    membership.role !== OrganizationRole.OWNER &&
+    membership.role !== OrganizationRole.ADMINISTRATOR
+  ) {
+    throw new ApiError("You do not have permission to manage this organization", 403);
+  }
+}
+
+function asJsonObject(value: unknown): Record<string, unknown> {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return {};
+  return value as Record<string, unknown>;
+}
+
+export function toMcpConfigurationResponse(
+  record: {
+    id: string;
+    mcpId: string;
+    scope: "PLATFORM" | "ORGANIZATION";
+    organizationId: string | null;
+    values: unknown;
+    createdAt: Date;
+    updatedAt: Date;
+  },
+  configuration: NonNullable<ReturnType<typeof getMcpConfigurationMetadata>>
+) {
+  return {
+    id: record.id,
+    mcpId: record.mcpId,
+    scope: record.scope === "PLATFORM" ? "platform" : "organization",
+    organizationId: record.organizationId,
+    values: sanitizeStoredConfigurationValues(configuration, asJsonObject(record.values)),
+    createdAt: record.createdAt.toISOString(),
+    updatedAt: record.updatedAt.toISOString()
+  };
+}
+
+export async function getMcpConfigurationForUser(
+  id: string,
+  query: ReturnType<typeof validatorMcpConfigurationQuery.parse>,
+  userId: string
+) {
+  const context = getConfigurationContextFromQuery(query);
+  await assertConfigurationAccess(context, userId, false);
+  const entry = getRegisteredMcp(mcpRegistry, id);
+  const configuration = getMcpConfigurationMetadata(entry.metadata);
+  if (!configuration) return { configuration: null, record: null };
+  return { configuration, record: await findMcpConfiguration(id, context) };
+}
+
+export async function saveMcpConfigurationForUser(
+  id: string,
+  body: { context: McpConfigurationContext; values: Record<string, unknown> },
+  userId: string
+) {
+  await assertConfigurationAccess(body.context, userId, true);
+  const entry = getRegisteredMcp(mcpRegistry, id);
+  const configuration = getMcpConfigurationMetadata(entry.metadata);
+  if (!configuration) throw new ApiError("This MCP does not require stored configuration", 409);
+  const values = validateAndSanitizeConfigurationValues(configuration, body.values);
+  const record = await upsertMcpConfiguration({
+    mcpId: id,
+    context: body.context,
+    values: toMcpConfigurationJson(values)
+  });
+  return { configuration, record };
+}
+
+export async function saveMcpDirectCredentialForUser(
+  id: string,
+  body: { context: McpConfigurationContext; values: Record<string, unknown> },
+  userId: string
+) {
+  await assertConfigurationAccess(body.context, userId, true);
+  const entry = getRegisteredMcp(mcpRegistry, id);
+  const configuration = entry.metadata.secretProviderConfiguration;
+  if (!configuration || configuration.type !== "direct") {
+    throw new ApiError("This MCP does not accept direct credentials", 409);
+  }
+  const value = validateDirectCredentialValue(configuration, body.values);
+  return upsertMcpDirectCredential({
+    mcpId: id,
+    secretId: configuration.secretId,
+    serviceProvider: entry.metadata.serviceProvider ?? id,
+    userId,
+    context: body.context,
+    value
+  });
 }

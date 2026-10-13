@@ -1,5 +1,6 @@
 import type { RequestHandler } from "express";
 import { ApiError } from "../../lib/error.js";
+import { getAuthenticatedUserId } from "../../middlewares/auth.middleware.js";
 import { requestHandler } from "../../utils/request-handler.js";
 import {
   beginPlatformMcpOAuth,
@@ -15,20 +16,12 @@ import {
 } from "../../oauth/state.js";
 import { validatorMcpOAuthCallbackQuery, validatorMcpOAuthParams } from "./validator.js";
 
-function getAuthenticatedUserId(request: Parameters<RequestHandler>[0]): string {
-  if (!request.user?.id) {
-    throw new ApiError("Unauthorized", 401);
-  }
-
-  return request.user.id;
-}
-
 export const controllerStartPlatformMcpOAuth: RequestHandler = requestHandler(async (req, res) => {
   const { id } = validatorMcpOAuthParams.parse(req.params);
-  getAuthenticatedUserId(req);
+  const userId = getAuthenticatedUserId(req);
 
   try {
-    const result = await beginPlatformMcpOAuth(id, getAuthenticatedUserId(req));
+    const result = await beginPlatformMcpOAuth(id, userId);
     setPlatformMcpOAuthState(res, result.state);
     res.redirect(302, result.authorizationUrl);
   } catch (error) {

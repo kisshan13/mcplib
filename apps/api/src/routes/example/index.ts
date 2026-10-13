@@ -1,5 +1,7 @@
-import { factoryExampleRouter } from "./factory.js";
+import { Router } from "express";
+import { controllerGetExample } from "./controller.js";
 
-const exampleRoutes = factoryExampleRouter();
+export const exampleRoutes: Router = Router();
+exampleRoutes.get("/", controllerGetExample);
 
 export default exampleRoutes;

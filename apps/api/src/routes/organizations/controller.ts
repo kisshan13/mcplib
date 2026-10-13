@@ -1,71 +1,29 @@
 import type { RequestHandler } from "express";
-import { OrganizationRole } from "@packages/prisma";
-import {
-  dtoOrganization,
-  dtoOrganizationList,
-  type OrganizationResponse
-} from "../../dto/organization.dto.js";
-import { ApiError } from "../../lib/error.js";
+import { dtoOrganizationList } from "../../dto/organization.dto.js";
 import ApiResponse from "../../lib/response.js";
+import { getAuthenticatedUserId } from "../../middlewares/auth.middleware.js";
 import { requestHandler } from "../../utils/request-handler.js";
+import {
+  createOrganizationForUser,
+  getOrganizationForUser,
+  listOrganizationsForUser,
+  updateOrganizationForUser
+} from "./factory.js";
+import { toOrganizationResponse } from "./utils.js";
 import {
   validatorCreateOrganizationBody,
   validatorOrganizationParams,
   validatorUpdateOrganizationBody
 } from "./validator.js";
-import {
-  createOrganization,
-  findOrganization,
-  findOrganizationMembership,
-  listOrganizations,
-  updateOrganization
-} from "./service.js";
-
-function getAuthenticatedUserId(req: Parameters<RequestHandler>[0]): string {
-  if (!req.user?.id) throw new ApiError("Unauthorized", 401);
-  return req.user.id;
-}
-
-function toOrganizationResponse(organization: {
-  id: string;
-  name: string;
-  description: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}): OrganizationResponse {
-  return dtoOrganization.parse({
-    id: organization.id,
-    name: organization.name,
-    description: organization.description,
-    createdAt: organization.createdAt.toISOString(),
-    updatedAt: organization.updatedAt.toISOString()
-  });
-}
-
-async function getOrganizationMembership(organizationId: string, userId: string) {
-  const membership = await findOrganizationMembership(organizationId, userId);
-  if (!membership) throw new ApiError("Organization not found", 404);
-  return membership;
-}
-
-function assertCanManageOrganization(role: OrganizationRole): void {
-  if (role !== OrganizationRole.OWNER && role !== OrganizationRole.ADMINISTRATOR) {
-    throw new ApiError("You do not have permission to manage this organization", 403);
-  }
-}
 
 export const controllerCreateOrganization: RequestHandler = requestHandler(async (req) => {
   const body = validatorCreateOrganizationBody.parse(req.body);
-  const organization = await createOrganization({
-    name: body.name,
-    description: body.description ?? null,
-    userId: getAuthenticatedUserId(req)
-  });
+  const organization = await createOrganizationForUser(body, getAuthenticatedUserId(req));
   return new ApiResponse(toOrganizationResponse(organization), "Organization created", 201);
 });
 
 export const controllerListOrganizations: RequestHandler = requestHandler(async (req) => {
-  const organizations = await listOrganizations(getAuthenticatedUserId(req));
+  const organizations = await listOrganizationsForUser(getAuthenticatedUserId(req));
   return new ApiResponse(
     dtoOrganizationList.parse(organizations.map(toOrganizationResponse)),
     "Organizations retrieved"
@@ -74,24 +32,13 @@ export const controllerListOrganizations: RequestHandler = requestHandler(async 
 
 export const controllerGetOrganization: RequestHandler = requestHandler(async (req) => {
   const { id } = validatorOrganizationParams.parse(req.params);
-  await getOrganizationMembership(id, getAuthenticatedUserId(req));
-  const organization = await findOrganization(id);
-  if (!organization) throw new ApiError("Organization not found", 404);
+  const organization = await getOrganizationForUser(id, getAuthenticatedUserId(req));
   return new ApiResponse(toOrganizationResponse(organization), "Organization retrieved");
 });
 
 export const controllerUpdateOrganization: RequestHandler = requestHandler(async (req) => {
   const { id } = validatorOrganizationParams.parse(req.params);
   const body = validatorUpdateOrganizationBody.parse(req.body);
-  const membership = await getOrganizationMembership(id, getAuthenticatedUserId(req));
-  assertCanManageOrganization(membership.role);
-
-  const data = {
-    ...(body.name !== undefined ? { name: body.name } : {}),
-    ...(Object.prototype.hasOwnProperty.call(body, "description")
-      ? { description: body.description }
-      : {})
-  };
-  const organization = await updateOrganization(id, data);
+  const organization = await updateOrganizationForUser(id, body, getAuthenticatedUserId(req));
   return new ApiResponse(toOrganizationResponse(organization), "Organization updated");
 });
