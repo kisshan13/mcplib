@@ -5,7 +5,7 @@ import {
   validatorOrganizationProfileParams,
   validatorCreateOrganizationProfileBody,
   validatorUpdateOrganizationProfileBody
-} from "../routes/organization-profiles/validator.js";
+} from "../routes/organizations/profiles/validator.js";
 
 export const dtoOrganizationProfile = z
   .object({

@@ -2,7 +2,7 @@ import { OAuthOwnershipType, OrganizationRole } from "@packages/prisma";
 import { ApiError } from "../../lib/error.js";
 import { mcpRegistry } from "../../registry/mcp-registry.js";
 import { findOrganizationMembership } from "../organizations/service.js";
-import { findOrganizationProfile } from "../organization-profiles/service.js";
+import { findOrganizationProfile } from "../organizations/profiles/service.js";
 import {
   createApiKey,
   findManageableApiKey,

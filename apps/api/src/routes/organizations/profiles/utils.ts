@@ -1,4 +1,4 @@
-import { dtoOrganizationProfile } from "../../dto/organization-profile.dto.js";
+import { dtoOrganizationProfile } from "../../../dto/organization-profile.dto.js";
 
 export function toProfileResponse(profile: {
   id: string;

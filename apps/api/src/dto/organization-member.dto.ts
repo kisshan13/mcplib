@@ -5,7 +5,7 @@ import {
   validatorOrganizationMemberOrganizationParams,
   validatorOrganizationMemberParams,
   validatorOrganizationMemberRoleBody
-} from "../routes/organization-members/validator.js";
+} from "../routes/organizations/members/validator.js";
 
 export const dtoOrganizationMember = z
   .object({

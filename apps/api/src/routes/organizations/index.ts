@@ -1,6 +1,6 @@
 import { Router } from "express";
-import organizationMemberRoutes from "../organization-members/index.js";
-import organizationProfileRoutes from "../organization-profiles/index.js";
+import organizationMemberRoutes from "./members/index.js";
+import organizationProfileRoutes from "./profiles/index.js";
 import {
   controllerCreateOrganization,
   controllerGetOrganization,

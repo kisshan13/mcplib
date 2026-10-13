@@ -1,5 +1,5 @@
 import { AuthenticationMethod, TokenStatus } from "@packages/prisma";
-import { dtoServiceToken } from "../../dto/organization-service-token.dto.js";
+import { dtoServiceToken } from "../../../dto/organization-service-token.dto.js";
 
 export function authenticationMethodFromInput(
   value: "oauth" | "api_key" | "bearer_token" | "basic_auth" | "custom"

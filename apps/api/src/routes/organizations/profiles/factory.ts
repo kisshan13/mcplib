@@ -1,6 +1,6 @@
 import { OrganizationRole } from "@packages/prisma";
-import { ApiError } from "../../lib/error.js";
-import { findOrganizationMembership } from "../organizations/service.js";
+import { ApiError } from "../../../lib/error.js";
+import { findOrganizationMembership } from "../service.js";
 import {
   createOrganizationProfile,
   deleteOrganizationProfile,

@@ -1,8 +1,8 @@
 import type { RequestHandler } from "express";
-import { dtoOrganizationMemberList } from "../../dto/organization-member.dto.js";
-import ApiResponse from "../../lib/response.js";
-import { getAuthenticatedUserId } from "../../middlewares/auth.middleware.js";
-import { requestHandler } from "../../utils/request-handler.js";
+import { dtoOrganizationMemberList } from "../../../dto/organization-member.dto.js";
+import ApiResponse from "../../../lib/response.js";
+import { getAuthenticatedUserId } from "../../../middlewares/auth.middleware.js";
+import { requestHandler } from "../../../utils/request-handler.js";
 import {
   addOrganizationMemberForUser,
   deleteOrganizationMemberForUser,

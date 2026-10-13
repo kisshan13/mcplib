@@ -1,6 +1,6 @@
 import { AuthenticationMethod, Prisma, TokenOwnerType, TokenStatus } from "@packages/prisma";
-import { encryptCredential } from "../../lib/credential-encryption.js";
-import prisma from "../../lib/prisma.js";
+import { encryptCredential } from "../../../lib/credential-encryption.js";
+import prisma from "../../../lib/prisma.js";
 
 export function listOrganizationServiceTokens(organizationId: string, userId: string) {
   return prisma.serviceToken.findMany({

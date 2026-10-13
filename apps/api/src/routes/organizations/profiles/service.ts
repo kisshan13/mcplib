@@ -1,6 +1,6 @@
 import { Prisma } from "@packages/prisma";
-import { ApiError } from "../../lib/error.js";
-import prisma from "../../lib/prisma.js";
+import { ApiError } from "../../../lib/error.js";
+import prisma from "../../../lib/prisma.js";
 
 export function listOrganizationProfiles(organizationId: string) {
   return prisma.profile.findMany({

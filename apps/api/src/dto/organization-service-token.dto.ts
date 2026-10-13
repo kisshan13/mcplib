@@ -4,11 +4,11 @@ import {
   validatorOrganizationServiceTokenIdParams,
   validatorOrganizationServiceTokenParams,
   validatorRegisterServiceTokenBody
-} from "../routes/organization-service-tokens/validator.js";
+} from "../routes/organizations/service-tokens/validator.js";
 import {
   validatorOrganizationProfileServiceTokenIdParams,
   validatorOrganizationProfileServiceTokenParams
-} from "../routes/organization-profile-service-tokens/validator.js";
+} from "../routes/organizations/service-tokens/validator.js";
 
 export const dtoServiceToken = z
   .object({

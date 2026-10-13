@@ -1,7 +1,7 @@
 import { OrganizationRole, Prisma } from "@packages/prisma";
-import { ApiError } from "../../lib/error.js";
-import prisma from "../../lib/prisma.js";
-import { findOrganizationMembership } from "../organizations/service.js";
+import { ApiError } from "../../../lib/error.js";
+import prisma from "../../../lib/prisma.js";
+import { findOrganizationMembership } from "../service.js";
 
 export async function requireOrganizationMember(organizationId: string, userId: string) {
   const membership = await findOrganizationMembership(organizationId, userId);

@@ -1,5 +1,5 @@
 import { OrganizationRole } from "@packages/prisma";
-import { dtoOrganizationMember } from "../../dto/organization-member.dto.js";
+import { dtoOrganizationMember } from "../../../dto/organization-member.dto.js";
 
 export function toMemberResponse(member: {
   id: string;

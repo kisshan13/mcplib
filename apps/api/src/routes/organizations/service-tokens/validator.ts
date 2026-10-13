@@ -10,6 +10,16 @@ export const validatorOrganizationServiceTokenIdParams =
     tokenId: z.string().trim().min(1)
   });
 
+export const validatorOrganizationProfileServiceTokenParams = z.object({
+  organizationId: z.string().trim().min(1),
+  profileId: z.string().trim().min(1)
+});
+
+export const validatorOrganizationProfileServiceTokenIdParams =
+  validatorOrganizationProfileServiceTokenParams.extend({
+    tokenId: z.string().trim().min(1)
+  });
+
 export const validatorRegisterServiceTokenBody = z
   .object({
     secretId: z.string().trim().min(1).max(120),

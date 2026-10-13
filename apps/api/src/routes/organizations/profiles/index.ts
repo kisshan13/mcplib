@@ -1,5 +1,5 @@
 import { Router } from "express";
-import organizationProfileServiceTokenRoutes from "../organization-profile-service-tokens/index.js";
+import { organizationProfileServiceTokenRoutes } from "../service-tokens/index.js";
 import {
   controllerCreateOrganizationProfile,
   controllerDeleteOrganizationProfile,

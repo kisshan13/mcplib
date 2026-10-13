@@ -1,5 +1,5 @@
 import { OrganizationRole } from "@packages/prisma";
-import { ApiError } from "../../lib/error.js";
+import { ApiError } from "../../../lib/error.js";
 import {
   createOrganizationMember,
   deleteOrganizationMember,
