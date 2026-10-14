@@ -1,14 +1,15 @@
 import type { ReactNode } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { BrandMark, TextLink } from "@/components/ui";
+import { OrganizationSwitcher } from "@/components/organizations/organization-switcher";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <header className="bg-zinc-950/95">
-        <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-6 px-6 lg:px-8">
+      <header className="relative bg-zinc-950/95">
+        <div className="mx-auto flex min-h-16 max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-3 lg:px-8">
           <a
             className="inline-flex items-center gap-3 font-mono text-sm font-semibold tracking-tight text-white no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             href="/"
@@ -19,35 +20,38 @@ export function AppShell({ children }: { children: ReactNode }) {
             </span>
           </a>
 
-          <nav
-            className="flex flex-wrap items-center justify-end gap-5"
-            aria-label="Workspace navigation"
-          >
-            <Link
-              to="/app"
-              aria-current={location.pathname === "/app" ? "page" : undefined}
-              className={`inline-flex items-center gap-2 font-mono text-xs text-zinc-400 no-underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white ${location.pathname === "/app" ? "text-white" : ""}`}
+          <div className="flex flex-wrap items-center justify-end gap-4">
+            <OrganizationSwitcher />
+            <nav
+              className="flex flex-wrap items-center justify-end gap-5"
+              aria-label="Workspace navigation"
             >
-              Workspace
-            </Link>
-            <Link
-              to="/app/mcps"
-              aria-current={location.pathname.startsWith("/app/mcps") ? "page" : undefined}
-              className={`inline-flex items-center gap-2 font-mono text-xs text-zinc-400 no-underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white ${location.pathname.startsWith("/app/mcps") ? "text-white" : ""}`}
-            >
-              MCPs
-            </Link>
-            <Link
-              to="/app/settings"
-              aria-current={location.pathname.startsWith("/app/settings") ? "page" : undefined}
-              className={`inline-flex items-center gap-2 font-mono text-xs text-zinc-400 no-underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white ${location.pathname.startsWith("/app/settings") ? "text-white" : ""}`}
-            >
-              Settings
-            </Link>
-            <TextLink href="https://github.com/kisshan13/mcplib" target="_blank" rel="noreferrer">
-              GitHub
-            </TextLink>
-          </nav>
+              <Link
+                to="/app"
+                aria-current={location.pathname === "/app" ? "page" : undefined}
+                className={`inline-flex items-center gap-2 font-mono text-xs text-zinc-400 no-underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white ${location.pathname === "/app" ? "text-white" : ""}`}
+              >
+                Workspace
+              </Link>
+              <Link
+                to="/app/mcps"
+                aria-current={location.pathname.startsWith("/app/mcps") ? "page" : undefined}
+                className={`inline-flex items-center gap-2 font-mono text-xs text-zinc-400 no-underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white ${location.pathname.startsWith("/app/mcps") ? "text-white" : ""}`}
+              >
+                MCPs
+              </Link>
+              <Link
+                to="/app/settings"
+                aria-current={location.pathname.startsWith("/app/settings") ? "page" : undefined}
+                className={`inline-flex items-center gap-2 font-mono text-xs text-zinc-400 no-underline transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white ${location.pathname.startsWith("/app/settings") ? "text-white" : ""}`}
+              >
+                Settings
+              </Link>
+              <TextLink href="https://github.com/kisshan13/mcplib" target="_blank" rel="noreferrer">
+                GitHub
+              </TextLink>
+            </nav>
+          </div>
         </div>
       </header>
 

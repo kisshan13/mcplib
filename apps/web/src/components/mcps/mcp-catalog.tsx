@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMcpRegistryQuery } from "@/hooks/query/mcp.query";
 import { McpCatalogHeader } from "./mcp-catalog-header";
 import { McpCatalogToolbar } from "./mcp-catalog-toolbar";
@@ -9,15 +9,21 @@ import type { McpAvailabilityFilter } from "./mcp-search";
 import { McpDetailsDialog } from "./mcp-details-dialog";
 import type { McpViewContext } from "./mcp-view-context";
 
+const platformViewContext: McpViewContext = { type: "platform" };
+
 interface McpCatalogProps {
   viewContext?: McpViewContext;
 }
 
-export function McpCatalog({ viewContext = { type: "platform" } }: McpCatalogProps) {
+export function McpCatalog({ viewContext = platformViewContext }: McpCatalogProps) {
   const query = useMcpRegistryQuery();
   const [searchQuery, setSearchQuery] = useState("");
   const [availability, setAvailability] = useState<McpAvailabilityFilter>("all");
   const [selectedMcpId, setSelectedMcpId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSelectedMcpId(null);
+  }, [viewContext.id, viewContext.type]);
 
   const filteredMcps = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();

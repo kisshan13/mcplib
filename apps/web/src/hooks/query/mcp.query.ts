@@ -15,7 +15,9 @@ export const mcpQueryKeys = {
   all: ["mcps"] as const,
   detail: (id: string) => ["mcps", id] as const,
   tools: (id: string) => ["mcps", id, "tools"] as const,
-  configurationStatuses: () => ["mcps", "configuration-status"] as const
+  configurationStatuses: () => ["mcps", "configuration-status"] as const,
+  configuration: (id: string, context: McpConfigurationContext) =>
+    ["mcps", id, "configuration", context] as const
 };
 
 export function useMcpRegistryQuery() {
@@ -49,7 +51,7 @@ export function useMcpConfigurationStatusesQuery(options: { enabled?: boolean } 
 
 export function useMcpConfigurationQuery(id: string, context: McpConfigurationContext) {
   return useQuery({
-    queryKey: [...mcpQueryKeys.detail(id), "configuration", context] as const,
+    queryKey: mcpQueryKeys.configuration(id, context),
     queryFn: () => apiGetMcpConfiguration(id, context),
     enabled: Boolean(id && context)
   });
@@ -73,7 +75,7 @@ export function useSaveMcpConfigurationMutation() {
       ) => {
         void queryClient.invalidateQueries({ queryKey: mcpQueryKeys.all });
         void queryClient.invalidateQueries({
-          queryKey: [...mcpQueryKeys.detail(input.id), "configuration", input.context]
+          queryKey: mcpQueryKeys.configuration(input.id, input.context)
         });
       }
     },
@@ -90,8 +92,11 @@ export function useMcpDirectCredentialMutation() {
     values: Record<string, unknown>;
   }>(
     {
-      onSuccess: () => {
+      onSuccess: (_result, input) => {
         void queryClient.invalidateQueries({ queryKey: mcpQueryKeys.all });
+        void queryClient.invalidateQueries({
+          queryKey: mcpQueryKeys.configuration(input.id, input.context)
+        });
       }
     },
     (input: { id: string; context: McpConfigurationContext; values: Record<string, unknown> }) =>

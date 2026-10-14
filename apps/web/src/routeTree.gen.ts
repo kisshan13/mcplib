@@ -16,6 +16,7 @@ import { Route as ExampleRouteImport } from './routes/example'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppMcpsRouteImport } from './routes/app/mcps'
 import { Route as AppSettingsRouteRouteImport } from './routes/app/settings/route'
+import { Route as AppOrganizationsOrganizationIdRouteImport } from './routes/app/organizations/$organizationId'
 import { Route as AppSettingsIndexRouteImport } from './routes/app/settings/index'
 import { Route as AppSettingsApiKeysRouteImport } from './routes/app/settings/api-keys'
 import { Route as AppSettingsMcpsRouteImport } from './routes/app/settings/mcps'
@@ -55,6 +56,12 @@ const AppSettingsRouteRoute = AppSettingsRouteRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppOrganizationsOrganizationIdRoute =
+  AppOrganizationsOrganizationIdRouteImport.update({
+    id: '/organizations/$organizationId',
+    path: '/organizations/$organizationId',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/app/settings': typeof AppSettingsRouteRouteWithChildren
   '/app/mcps': typeof AppMcpsRoute
   '/app/': typeof AppIndexRoute
+  '/app/organizations/$organizationId': typeof AppOrganizationsOrganizationIdRoute
   '/app/settings/api-keys': typeof AppSettingsApiKeysRoute
   '/app/settings/mcps': typeof AppSettingsMcpsRoute
   '/app/settings/': typeof AppSettingsIndexRoute
@@ -89,6 +97,7 @@ export interface FileRoutesByTo {
   '/example': typeof ExampleRoute
   '/app/mcps': typeof AppMcpsRoute
   '/app': typeof AppIndexRoute
+  '/app/organizations/$organizationId': typeof AppOrganizationsOrganizationIdRoute
   '/app/settings/api-keys': typeof AppSettingsApiKeysRoute
   '/app/settings/mcps': typeof AppSettingsMcpsRoute
   '/app/settings': typeof AppSettingsIndexRoute
@@ -102,6 +111,7 @@ export interface FileRoutesById {
   '/app/settings': typeof AppSettingsRouteRouteWithChildren
   '/app/mcps': typeof AppMcpsRoute
   '/app/': typeof AppIndexRoute
+  '/app/organizations/$organizationId': typeof AppOrganizationsOrganizationIdRoute
   '/app/settings/api-keys': typeof AppSettingsApiKeysRoute
   '/app/settings/mcps': typeof AppSettingsMcpsRoute
   '/app/settings/': typeof AppSettingsIndexRoute
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/mcps'
     | '/app/'
+    | '/app/organizations/$organizationId'
     | '/app/settings/api-keys'
     | '/app/settings/mcps'
     | '/app/settings/'
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '/example'
     | '/app/mcps'
     | '/app'
+    | '/app/organizations/$organizationId'
     | '/app/settings/api-keys'
     | '/app/settings/mcps'
     | '/app/settings'
@@ -138,6 +150,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/mcps'
     | '/app/'
+    | '/app/organizations/$organizationId'
     | '/app/settings/api-keys'
     | '/app/settings/mcps'
     | '/app/settings/'
@@ -201,6 +214,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/organizations/$organizationId': {
+      id: '/app/organizations/$organizationId'
+      path: '/organizations/$organizationId'
+      fullPath: '/app/organizations/$organizationId'
+      preLoaderRoute: typeof AppOrganizationsOrganizationIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/app/settings/': {
       id: '/app/settings/'
       path: '/'
@@ -244,12 +264,14 @@ interface AppRouteRouteChildren {
   AppSettingsRouteRoute: typeof AppSettingsRouteRouteWithChildren
   AppMcpsRoute: typeof AppMcpsRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppOrganizationsOrganizationIdRoute: typeof AppOrganizationsOrganizationIdRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppSettingsRouteRoute: AppSettingsRouteRouteWithChildren,
   AppMcpsRoute: AppMcpsRoute,
   AppIndexRoute: AppIndexRoute,
+  AppOrganizationsOrganizationIdRoute: AppOrganizationsOrganizationIdRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(

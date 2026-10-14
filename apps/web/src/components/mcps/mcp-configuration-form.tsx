@@ -1,7 +1,10 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { API_URL } from "@/config/constants";
 import type { McpMetadata } from "@/core-api/types/mcp-registry";
-import { useMcpDirectCredentialMutation } from "@/hooks/query/mcp.query";
+import {
+  useMcpDirectCredentialMutation,
+  useSaveMcpConfigurationMutation
+} from "@/hooks/query/mcp.query";
 import type { McpViewContext } from "./mcp-view-context";
 
 type SecretProviderConfiguration = NonNullable<McpMetadata["secretProviderConfiguration"]>;
@@ -29,6 +32,9 @@ interface McpConfigurationFormProps {
   platformOAuthConnected?: boolean;
   credentialConfigured?: boolean;
   platformOAuthChecking?: boolean;
+  storedValues?: Record<string, unknown> | null;
+  configurationLoading?: boolean;
+  configurationError?: boolean;
 }
 
 function getFieldLabel(id: string, field: JsonSchemaProperty) {
@@ -43,7 +49,11 @@ function isSecretField(field: JsonSchemaProperty) {
   return field.secret === true || field.writeOnly === true || field.format === "password";
 }
 
-function initialValue(field: JsonSchemaProperty) {
+function initialValue(field: JsonSchemaProperty, storedValue?: unknown) {
+  if (storedValue !== undefined) {
+    if (field.type === "boolean") return Boolean(storedValue);
+    return String(storedValue);
+  }
   if (field.default === undefined) return field.type === "boolean" ? false : "";
   if (field.type === "boolean") return Boolean(field.default);
   return String(field.default);
@@ -60,25 +70,38 @@ export function McpConfigurationForm({
   platformOAuthConfigured = false,
   platformOAuthConnected = false,
   credentialConfigured = false,
-  platformOAuthChecking = false
+  platformOAuthChecking = false,
+  storedValues,
+  configurationLoading = false,
+  configurationError = false
 }: McpConfigurationFormProps) {
   const schema = configuration?.inputSchema as JsonSchema | undefined;
-  const fields = useMemo(() => Object.entries(schema?.properties ?? {}), [schema]);
-  const requiredFields = useMemo(() => new Set(schema?.required ?? []), [schema]);
+  const fields = useMemo(
+    () =>
+      Object.entries(schema?.properties ?? {}).filter(
+        ([, field]) => configuration?.type === "direct" || !isSecretField(field)
+      ),
+    [configuration?.type, schema]
+  );
+  const fieldIds = useMemo(() => new Set(fields.map(([id]) => id)), [fields]);
+  const requiredFields = useMemo(
+    () => new Set((schema?.required ?? []).filter((id) => fieldIds.has(id))),
+    [fieldIds, schema]
+  );
   const [values, setValues] = useState<Record<string, string | boolean>>({});
   const [touched, setTouched] = useState<Set<string>>(new Set());
   const [editingDirectCredential, setEditingDirectCredential] = useState(false);
   const saveDirectCredential = useMcpDirectCredentialMutation();
+  const saveConfiguration = useSaveMcpConfigurationMutation();
 
   useEffect(() => {
     setValues(
-      Object.fromEntries(fields.map(([id, field]) => [id, initialValue(field)])) as Record<
-        string,
-        string | boolean
-      >
+      Object.fromEntries(
+        fields.map(([id, field]) => [id, initialValue(field, storedValues?.[id])])
+      ) as Record<string, string | boolean>
     );
     setTouched(new Set());
-  }, [fields]);
+  }, [fields, storedValues]);
 
   if (!configuration) {
     return (
@@ -86,6 +109,28 @@ export function McpConfigurationForm({
         <h3 className="text-sm font-medium text-white">Configuration</h3>
         <p className="text-sm leading-6 text-zinc-400">
           This MCP does not require additional configuration.
+        </p>
+      </section>
+    );
+  }
+
+  if (configuration.type === "configuration" && configurationLoading) {
+    return (
+      <section className="space-y-2" aria-label="MCP configuration" aria-busy="true">
+        <h3 className="text-sm font-medium text-white">Configuration</h3>
+        <p className="text-sm leading-6 text-zinc-400" role="status">
+          Loading saved configuration...
+        </p>
+      </section>
+    );
+  }
+
+  if (configuration.type === "configuration" && configurationError) {
+    return (
+      <section className="space-y-2" aria-label="MCP configuration" role="alert">
+        <h3 className="text-sm font-medium text-white">Configuration unavailable</h3>
+        <p className="text-sm leading-6 text-red-300">
+          We could not load this organization&apos;s saved configuration. Try again later.
         </p>
       </section>
     );
@@ -164,7 +209,19 @@ export function McpConfigurationForm({
       ? "This MCP expects configuration before its credential can be provided."
       : "Enter the service credential to make this MCP available to your account.";
 
-  function handleDirectCredentialSubmit(event: FormEvent<HTMLFormElement>) {
+  function getSubmissionValues() {
+    return Object.fromEntries(
+      fields.map(([id, field]) => {
+        const value = values[id] ?? "";
+        if (field.type === "number" && typeof value === "string" && value.trim()) {
+          return [id, Number(value)];
+        }
+        return [id, value];
+      })
+    );
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextTouched = new Set(requiredFields);
     setTouched(nextTouched);
@@ -174,11 +231,12 @@ export function McpConfigurationForm({
     );
     if (hasMissingRequiredField) return;
 
-    saveDirectCredential.mutate({
-      id: mcpId,
-      context,
-      values
-    });
+    const submissionValues = getSubmissionValues();
+    if (configuration?.type === "direct") {
+      saveDirectCredential.mutate({ id: mcpId, context, values: submissionValues });
+    } else {
+      saveConfiguration.mutate({ id: mcpId, context, values: submissionValues });
+    }
   }
 
   if (configuration.type === "direct" && credentialConfigured && !editingDirectCredential) {
@@ -235,13 +293,13 @@ export function McpConfigurationForm({
         </div>
       )}
 
-      <form onSubmit={configuration.type === "direct" ? handleDirectCredentialSubmit : undefined}>
+      <form onSubmit={handleSubmit}>
         {fields.length === 0 ? (
           <p className="text-sm text-zinc-400">No additional values are required.</p>
         ) : (
           <div className="space-y-4">
             {fields.map(([id, field]) => {
-              const value = values[id] ?? initialValue(field);
+              const value = values[id] ?? initialValue(field, storedValues?.[id]);
               const required = requiredFields.has(id);
               const error = required && touched.has(id) && isEmptyValue(value);
               const inputId = `mcp-config-${configuration.secretId}-${id}`;
@@ -320,7 +378,7 @@ export function McpConfigurationForm({
           </div>
         )}
 
-        {configuration.type === "direct" && (
+        {configuration.type === "direct" ? (
           <div className="mt-5 space-y-3">
             <button
               type="submit"
@@ -338,6 +396,26 @@ export function McpConfigurationForm({
             {saveDirectCredential.isError && (
               <p className="text-xs text-red-300" role="alert">
                 We could not configure this credential. Check the value and try again.
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="mt-5 space-y-3">
+            <button
+              type="submit"
+              disabled={saveConfiguration.isPending}
+              className="inline-flex items-center justify-center bg-white px-3 py-2 font-mono text-xs font-medium text-zinc-950 transition-colors hover:bg-zinc-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500"
+            >
+              {saveConfiguration.isPending ? "Saving..." : "Save configuration"}
+            </button>
+            {saveConfiguration.isSuccess && (
+              <p className="text-xs text-zinc-300" role="status">
+                Configuration saved for this organization.
+              </p>
+            )}
+            {saveConfiguration.isError && (
+              <p className="text-xs text-red-300" role="alert">
+                We could not save this configuration. Check the values and try again.
               </p>
             )}
           </div>

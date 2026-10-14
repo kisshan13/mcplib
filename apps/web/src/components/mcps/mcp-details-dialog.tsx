@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useRef } from "react";
-import { useMcpConfigurationStatusesQuery, useMcpQuery } from "@/hooks/query/mcp.query";
+import {
+  useMcpConfigurationQuery,
+  useMcpConfigurationStatusesQuery,
+  useMcpQuery
+} from "@/hooks/query/mcp.query";
 import { McpConfigurationForm } from "./mcp-configuration-form";
 import { McpImage } from "./mcp-image";
 import { McpToolsSection } from "./mcp-tools-section";
@@ -18,6 +22,7 @@ export function McpDetailsDialog({ mcpId, context, onClose }: McpDetailsDialogPr
   const statusQuery = useMcpConfigurationStatusesQuery({
     enabled: isOpen && context.type === "platform"
   });
+  const configurationQuery = useMcpConfigurationQuery(mcpId ?? "", context);
   const configurationStatus = statusQuery.data?.find((status) => status.mcpId === mcpId);
 
   useEffect(() => {
@@ -112,6 +117,15 @@ export function McpDetailsDialog({ mcpId, context, onClose }: McpDetailsDialogPr
                 platformOAuthConnected={configurationStatus?.configured === true}
                 credentialConfigured={configurationStatus?.configured === true}
                 platformOAuthChecking={statusQuery.isPending || statusQuery.isFetching}
+                storedValues={configurationQuery.data?.values ?? null}
+                configurationLoading={
+                  query.data.secretProviderConfiguration?.type === "configuration" &&
+                  configurationQuery.isPending
+                }
+                configurationError={
+                  query.data.secretProviderConfiguration?.type === "configuration" &&
+                  configurationQuery.isError
+                }
               />
               <McpToolsSection mcpId={query.data.id} />
             </div>
