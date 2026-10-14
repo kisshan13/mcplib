@@ -20,6 +20,7 @@
     "@packages/example-mcp": "workspace:*",
     "@packages/firecrawl-mcp": "workspace:*",
     "@packages/github-mcp": "workspace:*",
+    "@packages/google-drive-mcp": "workspace:*",
     "@packages/slack-mcp": "workspace:*",
     "@packages/mcp-core": "workspace:*",
     "@packages/mcplib-core": "workspace:*",

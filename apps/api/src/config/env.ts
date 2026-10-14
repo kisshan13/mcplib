@@ -13,7 +13,10 @@ const envSchema = z.object({
   GITHUB_OAUTH_REDIRECT_URI: z.string().url().optional(),
   SLACK_OAUTH_CLIENT_ID: z.string().trim().optional(),
   SLACK_OAUTH_CLIENT_SECRET: z.string().trim().optional(),
-  SLACK_OAUTH_REDIRECT_URI: z.string().url().optional()
+  SLACK_OAUTH_REDIRECT_URI: z.string().url().optional(),
+  GOOGLE_OAUTH_CLIENT_ID: z.string().trim().optional(),
+  GOOGLE_OAUTH_CLIENT_SECRET: z.string().trim().optional(),
+  GOOGLE_OAUTH_REDIRECT_URI: z.string().url().optional()
 });
 
 export const env = envSchema.parse(process.env);

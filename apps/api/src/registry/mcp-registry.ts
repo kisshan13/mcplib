@@ -3,6 +3,7 @@ import { z } from "zod";
 import exampleMcp from "@packages/example-mcp";
 import firecrawlMcp from "@packages/firecrawl-mcp";
 import githubMcp from "@packages/github-mcp";
+import googleDriveMcp from "@packages/google-drive-mcp";
 import slackMcp from "@packages/slack-mcp";
 import { env } from "../config/env.js";
 import { databaseSecretProvider } from "../lib/secret-provider.js";
@@ -21,6 +22,14 @@ type GithubPlatformConfiguration = {
 };
 
 type SlackPlatformConfiguration = {
+  oauth: {
+    clientId: string;
+    clientSecret: string;
+    redirectUri?: string;
+  };
+};
+
+type GoogleDrivePlatformConfiguration = {
   oauth: {
     clientId: string;
     clientSecret: string;
@@ -77,6 +86,30 @@ const slackPlatformConfigProvider: McpConfigurationProvider<
 
 mcpRegistry.register(slackMcp, {
   platformConfigProvider: slackPlatformConfigProvider
+});
+
+const googleDrivePlatformConfigProvider: McpConfigurationProvider<
+  GoogleDrivePlatformConfiguration
+> = async () => {
+  if (
+    !env.GOOGLE_OAUTH_CLIENT_ID ||
+    !env.GOOGLE_OAUTH_CLIENT_SECRET ||
+    !env.GOOGLE_OAUTH_REDIRECT_URI
+  ) {
+    return null;
+  }
+
+  return {
+    oauth: {
+      clientId: env.GOOGLE_OAUTH_CLIENT_ID,
+      clientSecret: env.GOOGLE_OAUTH_CLIENT_SECRET,
+      redirectUri: env.GOOGLE_OAUTH_REDIRECT_URI
+    }
+  };
+};
+
+mcpRegistry.register(googleDriveMcp, {
+  platformConfigProvider: googleDrivePlatformConfigProvider
 });
 
 const platformMcpParams = z.object({
