@@ -55,7 +55,13 @@ export class McpToolkit {
     this.toolMetadata.push({
       name: definition.name,
       description: definition.description,
-      inputSchema: z.toJSONSchema(definition.inputSchema) as Record<string, unknown>,
+      // MCP advertises the values sent by the client. Use the input side of
+      // pipes so runtime-only transforms do not make startup fail during
+      // JSON Schema generation.
+      inputSchema: z.toJSONSchema(definition.inputSchema, { io: "input" }) as Record<
+        string,
+        unknown
+      >,
       outputSchema: z.toJSONSchema(definition.outputSchema) as Record<string, unknown>
     });
 

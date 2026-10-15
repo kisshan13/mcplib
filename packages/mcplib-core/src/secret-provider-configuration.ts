@@ -36,7 +36,9 @@ export class SecretProviderConfiguration {
       throw new Error("SecretProviderConfiguration requires a secretId");
     }
 
-    const inputSchema = z.toJSONSchema(options.inputSchema) as SecretProviderJsonSchema;
+    const inputSchema = z.toJSONSchema(options.inputSchema, {
+      io: "input"
+    }) as SecretProviderJsonSchema;
 
     if (inputSchema.type !== "object") {
       throw new Error("SecretProviderConfiguration inputSchema must describe an object");

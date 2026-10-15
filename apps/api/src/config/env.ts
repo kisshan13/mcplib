@@ -7,6 +7,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string().optional(),
   CORS_ORIGINS: z.string().default("http://localhost:3001,http://127.0.0.1:6274"),
   WEB_APP_URL: z.string().url().default("http://localhost:3001"),
+  BETTER_AUTH_URL: z.string().url().default("http://localhost:3000"),
   MCPLIB_SECRET_ENCRYPTION_KEY: z.string().trim().optional(),
   GITHUB_OAUTH_CLIENT_ID: z.string().trim().optional(),
   GITHUB_OAUTH_CLIENT_SECRET: z.string().trim().optional(),
